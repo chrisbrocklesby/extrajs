@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="./extra.js" defer></script>
+  <title>ExtraJS - Example Demo</title>
+</head>
+
+<body>
+  <h1>((title))</h1>
+  <button onclick="xstore.title = 'Title changed at ' + new Date().toLocaleTimeString();">Change Title</button>
+
+  <div style="background-color: ((color))">Colour</div>
+  <button onclick="xstore.color = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');">Change
+    Colour</button>
+
+  <div>Current Time: ((time))</div>
+
+  <div xjs="
+    setInterval(() => {
+        textContent = (new Date()).toLocaleTimeString();
+      }, 1000);
+  ">
+    Time will update here every second
+  </div>
+</body>
+
+<script>
+  setInterval(() => {
+    xstore.time = new Date().toLocaleTimeString();
+  }, 1000);
+</script>
+
+</html>
