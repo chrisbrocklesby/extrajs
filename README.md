@@ -14,7 +14,7 @@ ExtraJS treats HTML as the primary surface. Think of it like Tailwind for behavi
 
 ## What it adds to HTML
 - **Template bindings**: `((path))` in text and attributes
-- **Inline JS**: `xjs="..."` for tiny interactions
+- **HTML Tag Inline JS**: `xjs="..."` for tiny interactions
 - **Minimal reactive state**: `xstore`, `xcomputed`, `xwatch` to support the above
 
 ## What it does not add
