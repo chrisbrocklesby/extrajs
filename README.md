@@ -1,4 +1,4 @@
-# ExtraJS
+# extraJS
 
 **HTML with extras, Just enough JS, skip the framework...**
 
