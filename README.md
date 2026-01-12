@@ -155,6 +155,7 @@ xcomputed("totalItems", () =>
 ## Notes
 - ExtraJS is an HTML enhancement layer; the JS API stays minimal by design.
 - Use `xjs` for quick, local behavior. Prefer `<script>` for larger functions and reuse.
+- **Security**: `xjs` executes JavaScript from HTML. Avoid injecting untrusted content into `xjs` or `((...))` bindings. If you use a Content Security Policy (CSP), allow inline scripts via nonces/hashes or move logic to `<script>` and call functions from `xjs`. Treat inline code as privileged and keep it local and intentional.
 
 ## License
 MIT — see LICENSE
