@@ -13,9 +13,9 @@ ExtraJS is a tiny HTML add-on that brings a few missing extras to standard marku
 ExtraJS treats HTML as the primary surface. Think of it like Tailwind for behavior: keep small interactions close to the markup, without a framework or build step. Use `<script>` when logic grows, but stay in HTML for the little things.
 
 ## What it adds to HTML
-- **Template bindings**: `((path))` in text and attributes
+- **HTML Template bindings**: `((path))` in text and attributes
 - **HTML Tag Inline JS**: `xjs="..."` for tiny interactions
-- **Minimal reactive state**: `xstore`, `xcomputed`, `xwatch` to support the above
+- **JS API Minimal reactive state**: `xstore`, `xcomputed`, `xwatch` to support the above
 
 ## What it does not add
 - No components, routing, or virtual DOM
