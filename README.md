@@ -2,7 +2,7 @@
 
 **HTML with extras, Just enough JS, skip the framework...**
 
-ExtraJS is a tiny HTML add-on that brings a few missing extras to standard markup: reactive bindings with `((...))` and inline behavior via `xjs`. The JavaScript layer is intentionally small and secondary — it exists to power those HTML-first features.
+ExtraJS is a tiny HTML add-on that brings a few missing extras to standard markup: reactive bindings with `((...))` and inline behavior via `xjs` or `data-xjs`. The JavaScript layer is intentionally small and secondary — it exists to power those HTML-first features.
 
 ```
 ((title))
@@ -14,7 +14,7 @@ ExtraJS treats HTML as the primary surface. Think of it like Tailwind for behavi
 
 ## What it adds to HTML
 - **HTML Template bindings**: `((path))` in text and attributes
-- **HTML Tag Inline JS**: `xjs="..."` for tiny interactions
+- **HTML Tag Inline JS**: `xjs="..."` or `data-xjs="..."` for tiny interactions
 - **JS API Minimal reactive state**: `xstore`, `xcomputed`, `xwatch` to support the above
 
 ## What it does not add
@@ -56,12 +56,13 @@ Bind text or attributes to state paths:
 <button title="((user.name))">Hover me</button>
 ```
 
-### Inline JS: `xjs="..."`
-`xjs` is real JavaScript, inline in your HTML. Use it for small, local behavior: toggles, quick state changes, simple timers, wiring events.
+### Inline JS: `xjs="..."` / `data-xjs="..."`
+`xjs` (or the HTML5-friendly `data-xjs`) is real JavaScript, inline in your HTML. Use it for small, local behavior: toggles, quick state changes, simple timers, wiring events.
 
 ```html
 <button xjs="xstore.count++">+</button>
 <div xjs="classList.toggle('active')">Toggle</div>
+<button data-xjs="xstore.count++">+</button>
 ```
 
 Multi-line inline JS:
@@ -77,7 +78,7 @@ Multi-line inline JS:
 
 When logic grows, keep it in `<script>` and call it from `xjs`:
 ```html
-<button xjs="increment()">+</button>
+<button xjs="onclick = () => increment()">+</button>
 <script>
   function increment() {
     xstore.count++;
@@ -85,7 +86,7 @@ When logic grows, keep it in `<script>` and call it from `xjs`:
 </script>
 ```
 
-`xjs` runs once per element and will re-run if the `xjs` attribute changes or a new element is added.
+`xjs` runs once per element and will re-run if the `xjs` or `data-xjs` attribute changes or a new element is added.
 
 ## Minimal JS layer
 

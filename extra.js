@@ -331,11 +331,11 @@
   const fnCache = new Map();
   const XJS_RAN = Symbol("xjsRan");
 
-  // Run xjs="..." on a single element
+  // Run xjs="..." or data-xjs="..." on a single element
   function runXjsOnElement(el) {
     if (!(el instanceof Element)) return;
 
-    const raw = el.getAttribute("xjs");
+    const raw = el.getAttribute("xjs") || el.getAttribute("data-xjs");
     if (!raw) return;
 
     const code = raw.trim();
@@ -369,13 +369,17 @@
     }
   }
 
-  // Run xjs="..." for root and all descendants
+  // Run xjs="..." or data-xjs="..." for root and all descendants
   function runXjsAttributes(root = document) {
-    if (root instanceof Element && root.hasAttribute("xjs") && !root[XJS_RAN]) {
+    if (
+      root instanceof Element &&
+      (root.hasAttribute("xjs") || root.hasAttribute("data-xjs")) &&
+      !root[XJS_RAN]
+    ) {
       runXjsOnElement(root);
     }
 
-    root.querySelectorAll?.("[xjs]").forEach((el) => {
+    root.querySelectorAll?.("[xjs],[data-xjs]").forEach((el) => {
       if (!el[XJS_RAN]) runXjsOnElement(el);
     });
   }
@@ -386,7 +390,11 @@
 
     const observer = new MutationObserver((muts) => {
       for (const m of muts) {
-        if (m.type === "attributes" && m.attributeName === "xjs" && m.target instanceof Element) {
+        if (
+          m.type === "attributes" &&
+          (m.attributeName === "xjs" || m.attributeName === "data-xjs") &&
+          m.target instanceof Element
+        ) {
           // Attribute changed: allow re-run even if it ran before
           delete m.target[XJS_RAN];
           runXjsOnElement(m.target);
@@ -405,7 +413,7 @@
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["xjs"],
+      attributeFilter: ["xjs", "data-xjs"],
     });
   }
 

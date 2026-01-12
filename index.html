@@ -27,6 +27,13 @@
   </div>
 </body>
 
+<button xjs="onclick = () => increment()">+</button>
+<script>
+  function increment() {
+    xstore.count++;
+  }
+</script>
+
 <script>
   setInterval(() => {
     xstore.time = new Date().toLocaleTimeString();
