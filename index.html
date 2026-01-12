@@ -4,323 +4,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ExtraJS adds small HTML extras like ((...)) bindings and inline xjs behavior. Extra power, minimum JS.">
-  <title>ExtraJS - HTML Extras</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
-  <script>
-    window.tailwind = {
-      config: {
-        theme: {
-          extend: {
-            fontFamily: {
-              display: ['"Fraunces"', 'serif'],
-              sans: ['"Space Grotesk"', 'sans-serif'],
-            },
-            colors: {
-              ink: '#1d1c19',
-              muted: '#5c564f',
-            },
-            boxShadow: {
-              glow: '0 30px 70px rgba(25, 25, 25, 0.18)',
-            },
-          },
-        },
-      },
-    };
-  </script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(14px);
-      }
-    }
+  <script src="extra.js" defer></script>
 
-    @keyframes rise {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <title>Document</title>
 </head>
 
-<body class="min-h-screen bg-[#f7f2ea] font-sans text-ink" style="--accent: #ff7a00; --accent-2: #2f6bff;">
-  <div class="fixed inset-0 pointer-events-none">
-    <div class="absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full bg-[rgba(47,107,255,0.25)] blur-3xl">
-    </div>
-    <div class="absolute -top-40 left-[-10%] h-[560px] w-[560px] rounded-full bg-[rgba(255,122,0,0.25)] blur-3xl">
-    </div>
-    <div class="absolute inset-0 opacity-40"
-      style="background-image: linear-gradient(transparent 90%, rgba(0, 0, 0, 0.04) 100%), linear-gradient(90deg, transparent 90%, rgba(0, 0, 0, 0.04) 100%); background-size: 48px 48px;">
-    </div>
-  </div>
+<body>
 
-  <div class="relative z-10">
-    <header class="px-6 pb-20 pt-10" style="animation: rise 0.8s ease both;">
-      <div class="mx-auto flex max-w-6xl flex-col gap-12">
-        <nav class="flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div
-              class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-sm font-semibold text-white shadow-lg">
-              XJ
-            </div>
-            <span class="font-display text-2xl">ExtraJS</span>
-          </div>
-          <div class="flex flex-wrap items-center gap-5 text-sm text-muted">
-            <a href="#features" class="hover:text-ink">HTML extras</a>
-            <a href="#xjs" class="hover:text-ink">Inline JS</a>
-            <a href="#bindings" class="hover:text-ink">Bindings</a>
-            <a href="#get-started" class="hover:text-ink">Get started</a>
-          </div>
-          <button
-            class="rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-ink shadow-sm backdrop-blur"
-            data-xjs="onclick = () => randomizeAccent()">Shuffle accent</button>
-        </nav>
+  <main class="w-[70%] mx-auto my-8">
 
-        <div class="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div class="space-y-6">
-            <p class="text-xs uppercase tracking-[0.35em] text-muted">HTML extras</p>
-            <h1 class="font-display text-5xl leading-tight md:text-6xl">Extra power, minimum JS.</h1>
-            <p class="text-lg text-muted">
-              ExtraJS adds the missing extras to standard HTML: `((...))` bindings and inline behavior via `xjs` or
-              `data-xjs`. Keep tiny interactions in the markup, and reach for `&lt;script&gt;` only when logic grows.
-            </p>
-            <div class="flex flex-wrap gap-3">
-              <button
-                class="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-ink shadow-[0_16px_32px_rgba(255,122,0,0.28)]"
-                xjs="onclick = () => bump()">Try the demo</button>
-              <button
-                class="rounded-full border border-black/10 bg-white/60 px-6 py-3 text-sm font-semibold text-ink"
-                data-xjs="onclick = () => jumpTo('#get-started')">Get the script</button>
-            </div>
-            <div class="flex flex-wrap gap-3 text-sm text-muted">
-              <span class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2">
-                Live count: <strong class="text-ink">((count))</strong>
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2">
-                Status: <strong class="text-ink">((status))</strong>
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2">
-                Accent:
-                <i class="inline-block h-3 w-3 rounded-full border border-black/10"
-                  style="background: ((accent))"></i>
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2">
-                Time: <strong class="text-ink">((time))</strong>
-              </span>
-            </div>
-          </div>
-
-          <div class="relative">
-            <div
-              class="absolute -top-10 right-8 h-32 w-32 rounded-full bg-[rgba(255,122,0,0.35)] blur-2xl"
-              style="animation: float 6s ease-in-out infinite;"></div>
-            <div class="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-glow backdrop-blur">
-              <span class="inline-flex items-center gap-2 rounded-full bg-[rgba(47,107,255,0.14)] px-3 py-1 text-xs
-                uppercase tracking-[0.2em] text-[#2f6bff]">
-                Live HTML extras
-              </span>
-              <h3 class="mt-4 text-2xl font-semibold">((title))</h3>
-              <p class="mt-2 text-sm text-muted">((subtitle))</p>
-
-              <label class="mt-5 block text-xs uppercase tracking-[0.3em] text-muted">Edit the title</label>
-              <input
-                class="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm focus:border-black/30 focus:outline-none"
-                value="((title))" placeholder="Type a new title" data-xjs="oninput = () => xstore.title = value">
-
-              <div class="mt-4 flex flex-wrap gap-2">
-                <button class="rounded-full border border-black/10 bg-white px-4 py-2 text-sm"
-                  xjs="onclick = () => bump()">Bump count</button>
-                <button class="rounded-full border border-black/10 bg-white px-4 py-2 text-sm"
-                  data-xjs="onclick = () => randomizeAccent()">New accent</button>
-              </div>
-
-              <div class="mt-5 h-2 rounded-full bg-black/10">
-                <span class="block h-full rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)]"
-                  style="width: ((progress))"></span>
-              </div>
-              <p class="mt-3 text-xs text-muted">Last action: ((lastAction))</p>
-            </div>
-          </div>
-        </div>
+    <div class="max-w-3xl mx-auto bg-[#0f172a] rounded-lg overflow-hidden shadow-xl">
+      <div class="flex items-center gap-2 px-4 py-3 bg-[#1e293b]">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+        <span class="w-3 h-3 rounded-full bg-green-500"></span>
       </div>
-    </header>
 
-    <main class="mx-auto max-w-6xl px-6">
-      <section id="features" class="py-16" style="animation: rise 0.8s ease both; animation-delay: 0.1s;">
-        <h2 class="text-3xl font-semibold">What ExtraJS adds to HTML</h2>
-        <p class="mt-2 text-sm text-muted">A small layer of extras that feel like they belong in the markup.</p>
-        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <article class="rounded-2xl border border-black/10 bg-white/80 p-5">
-            <h3 class="text-lg font-semibold">Inline JS with `xjs`</h3>
-            <p class="mt-2 text-sm text-muted">Write tiny interactions inline, right where the element lives.</p>
-          </article>
-          <article class="rounded-2xl border border-black/10 bg-white/80 p-5">
-            <h3 class="text-lg font-semibold">HTML5-friendly `data-xjs`</h3>
-            <p class="mt-2 text-sm text-muted">Use `data-xjs` for standards-friendly attributes.</p>
-          </article>
-          <article class="rounded-2xl border border-black/10 bg-white/80 p-5">
-            <h3 class="text-lg font-semibold">`((...))` bindings</h3>
-            <p class="mt-2 text-sm text-muted">Drop bindings into text or attributes and they update automatically.</p>
-          </article>
-          <article class="rounded-2xl border border-black/10 bg-white/80 p-5">
-            <h3 class="text-lg font-semibold">Minimal state layer</h3>
-            <p class="mt-2 text-sm text-muted">`xstore`, `xcomputed`, `xwatch` only exist to support the HTML extras.</p>
-          </article>
-        </div>
-      </section>
+      <div class="bg-[#0a1120]">
+        <pre class="font-mono text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/div&gt;
+&lt;button onclick="x.store.count++"&gt;+&lt;/button&gt;
+&lt;button onclick="x.store.count--"&gt;-&lt;/button&gt;</code></pre>
+      </div>
+    </div>
 
-      <section id="xjs" class="py-16" style="animation: rise 0.8s ease both; animation-delay: 0.2s;">
-        <div class="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
-          <div>
-            <h2 class="text-3xl font-semibold">Inline JS, but on purpose</h2>
-            <p class="mt-3 text-lg text-muted">
-              `xjs` is for the small, local stuff: toggles, simple state changes, quick timers, or wiring an event.
-              When you need reusable logic, keep it in `&lt;script&gt;` and call it.
-            </p>
-            <div class="mt-4 flex flex-wrap gap-3">
-              <button class="rounded-full border border-black/10 bg-white px-4 py-2 text-sm"
-                xjs="onclick = () => bump()">Inline click</button>
-              <button class="rounded-full border border-black/10 bg-white px-4 py-2 text-sm"
-                data-xjs="onclick = () => randomizeAccent()">Data attribute</button>
-            </div>
-            <p class="mt-3 text-xs text-muted">Clicking either button updates the live state and bindings above.</p>
-          </div>
-          <pre class="rounded-2xl bg-[#121212] p-6 text-xs text-[#f4f4f4]"><code>&lt;button xjs="onclick = () =&gt; bump()"&gt;Inline click&lt;/button&gt;
-&lt;button data-xjs="onclick = () =&gt; randomizeAccent()"&gt;Data attribute&lt;/button&gt;
+    <!-- count example -->
+    <div class="bg-slate-200 rounded-lg overflow-hidden mt-8 p-4 max-w-3xl mx-auto">
+      <div>Count: ((count))</div>
+      <button class="bg-blue-500 text-white px-3 py-1 rounded mr-2 mt-2" onclick="x.store.count++">+</button>
+      <button class="bg-red-500 text-white px-3 py-1 rounded mt-2" onclick="x.store.count--">-</button>
+    </div>
 
-&lt;div xjs="
-  setInterval(() =&gt; {
-    textContent = new Date().toLocaleTimeString();
-  }, 1000);
-"&gt;
-  Time updates inline
-&lt;/div&gt;</code></pre>
-        </div>
-      </section>
+    <!-- input field code example -->
+    <div class="max-w-3xl mx-auto bg-[#0f172a] rounded-lg overflow-hidden shadow-xl mt-8">
+      <div class="flex items-center gap-2 px-4 py-3 bg-[#1e293b]">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+      </div>
 
-      <section id="bindings" class="py-16" style="animation: rise 0.8s ease both; animation-delay: 0.3s;">
-        <div class="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
-          <div>
-            <h2 class="text-3xl font-semibold">Bindings that feel native</h2>
-            <p class="mt-3 text-lg text-muted">
-              `((...))` bindings are lightweight and readable. Drop them into text or attributes and they update when
-              state changes.
-            </p>
-            <div class="mt-5 grid gap-4 sm:grid-cols-2">
-              <article class="rounded-2xl border border-black/10 bg-white/80 p-4">
-                <h3 class="text-sm font-semibold">Text</h3>
-                <p class="mt-2">Heading: <strong>((title))</strong></p>
-              </article>
-              <article class="rounded-2xl border border-black/10 bg-white/80 p-4">
-                <h3 class="text-sm font-semibold">Attributes</h3>
-                <p class="mt-2 flex items-center gap-2">
-                  <span class="inline-block h-3 w-3 rounded-full border border-black/10"
-                    style="background: ((accent))"></span>
-                  Accent swatch
-                </p>
-              </article>
-            </div>
-          </div>
-          <pre class="rounded-2xl bg-[#121212] p-6 text-xs text-[#f4f4f4]"><code>&lt;h1&gt;((title))&lt;/h1&gt;
-&lt;button title="((title))"&gt;Hover me&lt;/button&gt;
-&lt;div style="background: ((accent))"&gt;Accent&lt;/div&gt;</code></pre>
-        </div>
-      </section>
+      <div class="bg-[#0a1120]">
+        <pre class="font-mono text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Name: &#40;&#8203;&#40;name&#41;&#8203;&#41;&lt;/div&gt;
+&lt;input type="text" oninput="x.store.name = this.value"&gt;</code></pre>
+      </div>
+    </div>
 
-      <section id="get-started" class="py-16" style="animation: rise 0.8s ease both; animation-delay: 0.4s;">
-        <h2 class="text-3xl font-semibold">Get started</h2>
-        <div class="mt-6 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-          <pre class="rounded-2xl bg-[#121212] p-6 text-xs text-[#f4f4f4]"><code>&lt;script src="/extra.js"&gt;&lt;/script&gt;
+    <!-- input field example -->
+    <div class="bg-slate-200 rounded-lg overflow-hidden mt-8 p-4 max-w-3xl mx-auto">
+      <div class="mb-4">Name: ((name))</div>
+      <input type="text" class="border border-gray-300 rounded px-3 py-1 w-full" placeholder="Enter your name"
+        oninput="x.store.name = this.value">
+    </div>
 
-&lt;h1&gt;((title))&lt;/h1&gt;
-&lt;button xjs="onclick = () =&gt; xstore.count++"&gt;+&lt;/button&gt;
+    <!-- toggle code example -->
+    <div class="max-w-3xl mx-auto bg-[#0f172a] rounded-lg overflow-hidden shadow-xl mt-8">
+      <div class="flex items-center gap-2 px-4 py-3 bg-[#1e293b]">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+      </div>
 
-&lt;script&gt;
-  xstore.title = "ExtraJS demo";
-  xstore.count = 0;
-&lt;/script&gt;</code></pre>
-          <div class="space-y-4">
-            <p class="text-lg text-muted">
-              ExtraJS keeps HTML first and JavaScript secondary. Use inline behavior for the small stuff, and keep
-              larger logic in scripts.
-            </p>
-            <div class="rounded-2xl border border-black/10 bg-white/80 p-5">
-              <h3 class="text-sm font-semibold">Security note</h3>
-              <p class="mt-2 text-sm text-muted">
-                Inline JS is powerful. Avoid untrusted content in `xjs`, and use CSP nonces or hashes if you need
-                inline scripts in production.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+      <div class="bg-[#0a1120]">
+        <pre class="font-mono text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div class=&quot;&#40;&#8203;&#40;toggleview&#41;&#8203;&#41;&quot;&gt;👋🏻 Now you see me...&lt;/div&gt;
+&lt;button onclick=&quot;x.store.toggleview = x.store.toggleview ? '' : 'hidden'&quot;&gt;
+  Toggle View
+&lt;/button&gt;</code></pre>
+      </div>
+    </div>
 
-    <footer class="mx-auto max-w-6xl px-6 pb-16 pt-8 text-center text-sm text-muted">
-      ExtraJS - HTML extras for real pages. ((year))
-    </footer>
-  </div>
+    <!-- toggle example -->
+    <div class="bg-slate-200 rounded-lg overflow-hidden mt-8 p-4 max-w-3xl mx-auto">
+      <div class="((toggleview)) pb-4">👋🏻 Now you see me...</div>
+      <button class="bg-green-500 text-white px-3 py-1 rounded"
+        onclick="x.store.toggleview = x.store.toggleview ? '' : 'hidden'">
+        Toggle View
+      </button>
+    </div>
 
-  <script src="./extra.js"></script>
+  </main>
+
   <script>
-    xstore.title = "ExtraJS adds the extras";
-    xstore.subtitle = "Small HTML enhancements, not a framework.";
-    xstore.count = 3;
-    xstore.accent = "#ff7a00";
-    xstore.lastAction = "Ready";
-    xstore.time = new Date().toLocaleTimeString();
-    xstore.year = new Date().getFullYear();
-
-    xcomputed("status", () => (xstore.count % 2 === 0 ? "Steady" : "Buzzing"));
-    xcomputed("progress", () => Math.min(100, (xstore.count % 10) * 10) + "%");
-
-    xwatch("count", (nv) => {
-      xstore.lastAction = "Count is now " + nv;
-    });
-
-    xwatch("title", () => {
-      xstore.lastAction = "Title updated";
-    });
-
-    xwatch("accent", (nv) => {
-      document.documentElement.style.setProperty("--accent", nv);
-    });
-
-    function bump() {
-      xstore.count++;
-    }
-
-    function randomizeAccent() {
-      var palette = ["#ff7a00", "#2f6bff", "#00b894", "#ff3b5c", "#f4b942"];
-      var next = palette[Math.floor(Math.random() * palette.length)];
-      xstore.accent = next;
-      xstore.lastAction = "Accent changed";
-    }
-
-    function jumpTo(target) {
-      var el = document.querySelector(target);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }
-
-    document.documentElement.style.setProperty("--accent", xstore.accent);
-
-    setInterval(() => {
-      xstore.time = new Date().toLocaleTimeString();
-    }, 1000);
+    //x.store.content = "Hello, Extra.js!";
   </script>
+
 </body>
 
 </html>

@@ -1,162 +1,236 @@
-# extraJS
+# ExtraJS
 
-**HTML with extras, Just enough JS, skip the framework...**
+**A tiny, reactive, no-build HTML framework.**\
+State, templating, directives, inline JS & events --- all from standard
+HTML.
 
-ExtraJS is a tiny HTML add-on that brings a few missing extras to standard markup: reactive bindings with `((...))` and inline behavior via `xjs` or `data-xjs`. The JavaScript layer is intentionally small and secondary — it exists to power those HTML-first features.
+-   No bundler
+-   No virtual DOM
+-   No compiler step
+-   Works in single files or large apps
+-   Automatic reactivity
+-   Session persistence built-in
 
-```
-((title))
-<button xjs="xstore.count++">+</button>
-```
+Load it:
 
-## The idea
-ExtraJS treats HTML as the primary surface. Think of it like Tailwind for behavior: keep small interactions close to the markup, without a framework or build step. Use `<script>` when logic grows, but stay in HTML for the little things.
-
-## What it adds to HTML
-- **HTML Template bindings**: `((path))` in text and attributes
-- **HTML Tag Inline JS**: `xjs="..."` or `data-xjs="..."` for tiny interactions
-- **JS API Minimal reactive state**: `xstore`, `xcomputed`, `xwatch` to support the above
-
-## What it does not add
-- No components, routing, or virtual DOM
-- No compiler, no build tools
-- No opinionated app structure
-
-## Installation
-
-### Local
-```html
-<script src="/extra.js"></script>
+``` html
+<script src="extra.js"></script>
 ```
 
-## Quick Start (HTML-first)
+------------------------------------------------------------------------
 
-```html
+## Core Concepts
+
+### 1) Reactive Store
+
+`x.store` is your global state.
+
+``` html
+<script>
+  x.store.count = 0
+</script>
+```
+
+Changing store values automatically updates the page.
+
+------------------------------------------------------------------------
+
+### 2) Render Values
+
+Use `((path))` anywhere in text or attributes.
+
+``` html
+<h1>Hello ((user.name))</h1>
+<input x-bind:value="user.name">
+```
+
+Supports nested:
+
+    ((cart.total))
+    ((user.address.city))
+    ((items[0].price))
+
+------------------------------------------------------------------------
+
+### 3) Inline JS: `x-js`
+
+Runs when the element appears.
+
+``` html
+<div x-js="this.textContent = x.store.message"></div>
+```
+
+Full JS allowed (async too):
+
+``` html
+<div x-js="
+  const txt = await fetch('/hello.txt').then(r=>r.text());
+  this.textContent = txt;
+"></div>
+```
+
+------------------------------------------------------------------------
+
+## Directives
+
+### Conditional
+
+``` html
+<div x-if="loggedIn">Welcome!</div>
+<div x-else>Please log in</div>
+```
+
+### Show / Hide (keeps in DOM)
+
+``` html
+<div x-show="menuOpen">Menu Content</div>
+<button x-on:click="x.store.menuOpen = !menuOpen">Toggle</button>
+```
+
+### Bind attribute/property
+
+``` html
+<input x-bind:value="name">
+<div x-bind:class="theme">Styled!</div>
+```
+
+### Events: `x-on:*`
+
+``` html
+<button x-on:click="x.store.count++">Add</button>
+<input x-on:input="x.store.name = el.value">
+```
+
+### Loop: `x-for="item in items"`
+
+``` html
+<ul>
+  <li x-for="p in products">
+    ((p.name)): $((p.price))
+  </li>
+</ul>
+
+<script>
+  x.store.products = [
+    {name:'A', price:10},
+    {name:'B', price:20}
+  ]
+</script>
+```
+
+------------------------------------------------------------------------
+
+## Computed Properties
+
+``` html
+<script>
+x.store.a = 2
+x.store.b = 3
+x.computed("total", () => x.store.a + x.store.b)
+</script>
+
+Total is ((total))
+```
+
+Automatically updates when dependencies change.
+
+------------------------------------------------------------------------
+
+## Watchers
+
+Run code when a value changes.
+
+``` html
+<script>
+x.watch("count", (nv, ov) => {
+  console.log("count changed:", ov, "→", nv)
+})
+</script>
+```
+
+------------------------------------------------------------------------
+
+## Persisted State
+
+ExtraJS stores `x.store` in *sessionStorage*. Refresh-safe.\
+Set values normally --- no config required.
+
+------------------------------------------------------------------------
+
+## Manual re-scan (advanced)
+
+``` js
+x.apply()      // run x-js on new elements
+```
+
+------------------------------------------------------------------------
+
+## Full Example
+
+``` html
+<!DOCTYPE html>
+<html>
+<body>
+
 <h1>((title))</h1>
-<p>Clicks: ((count))</p>
-<button xjs="xstore.count++">+</button>
+<p>Count: ((count))</p>
 
+<button x-on:click="x.store.count++">+</button>
+<button x-on:click="x.store.count--">-</button>
+
+<ul>
+  <li x-for="p in products">
+    ((p.name)) – $((p.price))
+  </li>
+</ul>
+
+<div x-if="count > 5">Too high!</div>
+<div x-else>Keep going</div>
+
+<script src="extra.js"></script>
 <script>
-  xstore.title = "ExtraJS Demo";
-  xstore.count = 0;
+  x.store.title = "ExtraJS Demo"
+  x.store.count = 0
+  x.store.products = [
+    {name:"Product 1", price:12.95},
+    {name:"Product 2", price:18.50},
+  ]
+
+  x.computed("double", () => x.store.count * 2)
+  x.watch("count", (n)=>console.log("count:", n))
 </script>
+
+</body>
+</html>
 ```
 
-## HTML Extras
+------------------------------------------------------------------------
 
-### Template bindings: `((...))`
-Bind text or attributes to state paths:
-- `((title))`
-- `((user.name))`
-- `((items[0].qty))`
+## API Summary
 
-```html
-<h1>((user.name))</h1>
-<p>First item: ((items[0].qty))</p>
-<button title="((user.name))">Hover me</button>
-```
+  Feature         Usage
+  --------------- ------------------------------
+  Global Store    `x.store.foo = 1`
+  Watch           `x.watch("foo", fn)`
+  Computed        `x.computed("bar", () => …)`
+  Force re-scan   `x.apply(el)`
 
-### Inline JS: `xjs="..."` / `data-xjs="..."`
-`xjs` (or the HTML5-friendly `data-xjs`) is real JavaScript, inline in your HTML. Use it for small, local behavior: toggles, quick state changes, simple timers, wiring events.
+### Supported attributes
 
-```html
-<button xjs="xstore.count++">+</button>
-<div xjs="classList.toggle('active')">Toggle</div>
-<button data-xjs="xstore.count++">+</button>
-```
+  Attribute                Purpose
+  ------------------------ -----------------------
+  `((path))`               Render store/computed
+  `x-js="code"`            Run inline JS
+  `x-if="expr"`            Conditional insert
+  `x-else`                 Paired fallback
+  `x-show="expr"`          Toggle hidden
+  `x-bind:attr="path"`     Bind prop/attr
+  `x-on:event="js"`        Add event listener
+  `x-for="item in list"`   Loop & stamp HTML
 
-Multi-line inline JS:
-```html
-<div xjs="
-  setInterval(() => {
-    textContent = new Date().toLocaleTimeString();
-  }, 1000);
-">
-  Time will update here every second
-</div>
-```
-
-When logic grows, keep it in `<script>` and call it from `xjs`:
-```html
-<button xjs="onclick = () => increment()">+</button>
-<script>
-  function increment() {
-    xstore.count++;
-  }
-</script>
-```
-
-`xjs` runs once per element and will re-run if the `xjs` or `data-xjs` attribute changes or a new element is added.
-
-## Minimal JS layer
-
-### `xstore`
-A reactive proxy for global state. Updates bindings and watchers.
-
-```js
-xstore.title = "Hello";
-xstore.user = { name: "Ava" };
-xstore.items = [{ qty: 1 }, { qty: 2 }];
-```
-
-### `xcomputed(name, fn)`
-Define derived values.
-
-```js
-xcomputed("fullTitle", () => xstore.title + " #" + xstore.count);
-```
-
-Use it in templates:
-```html
-<h2>((fullTitle))</h2>
-```
-
-### `xwatch(path, fn)`
-Run code when a specific path changes.
-
-```js
-xwatch("count", (nv, ov) => console.log("count:", ov, "->", nv));
-xwatch("user.name", (nv) => console.log("name:", nv));
-```
-
-## Persistence
-State is stored in `sessionStorage` under the key `extrajs_xstore` and restored on load.
-
-## More Examples
-
-### Live clock
-```html
-<div>Time: ((time))</div>
-<script>
-  setInterval(() => {
-    xstore.time = new Date().toLocaleTimeString();
-  }, 1000);
-</script>
-```
-
-### Derived totals
-```js
-xstore.cart = [{ qty: 2 }, { qty: 1 }];
-
-xcomputed("totalItems", () =>
-  xstore.cart.reduce((sum, item) => sum + item.qty, 0)
-);
-```
-
-```html
-<p>Total items: ((totalItems))</p>
-```
-
-### Inline JS for tiny interactions
-```html
-<button xjs="onclick = () => xstore.count++">Click</button>
-<span xjs="onmouseenter = () => classList.add('hot')">Hover me</span>
-```
-
-## Notes
-- ExtraJS is an HTML enhancement layer; the JS API stays minimal by design.
-- Use `xjs` for quick, local behavior. Prefer `<script>` for larger functions and reuse.
-- **Security**: `xjs` executes JavaScript from HTML. Avoid injecting untrusted content into `xjs` or `((...))` bindings. If you use a Content Security Policy (CSP), allow inline scripts via nonces/hashes or move logic to `<script>` and call functions from `xjs`. Treat inline code as privileged and keep it local and intentional.
+------------------------------------------------------------------------
 
 ## License
-MIT — see LICENSE
+
+MIT License\
+See `LICENSE` file.

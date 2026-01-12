@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="extra.js"></script>
+  <title>Document</title>
+</head>
+
+<body>
+  <h1>((title))</h1>
+  <p>((description))</p>
+
+  <ul x-for="product in products">
+    <li>((product.name)): $((product.price))</li>
+  </ul>
+
+  <button x-on:click="x.store.title = 'Title Updated!'">Update Title</button>
+
+  <div style="background-color: ((color));">Colour</div>
+  <button x-on:click="x.store.color === 'lightblue' ? x.store.color = 'lightgreen' : x.store.color = 'lightblue'">Toggle
+    Color</button>
+
+  <button x-on:click="x.store.products.push({ name: 'New Product', price: 9.99 });">Add
+    Product</button>
+
+  <div x-show="show">
+    This content is conditionally visible.
+
+  </div>
+  <br>
+  <button x-on:click="x.store.show = x.store.show ? false : true">Show/Hide</button>
+
+  <br><br>
+  <div x-js="qetInterval(() => {x.store.time = (new Date()).toLocaleTimeString()}, 1000);">((time))</div>
+
+  <h2>Miss: ((missing))</h2>
+
+
+  <script>
+    x.store.title = "Welcome to My Page";
+    x.store.description = "This is a simple page demonstrating dynamic content binding.";
+    if (x.store.products === undefined || !Array.isArray(x.store.products)) {
+      x.store.products = [
+        { name: "Product 1", price: 29.99 },
+        { name: "Product 2", price: 49.99 },
+        { name: "Product 3", price: 19.99 }
+      ];
+    }
+    x.store.color = "lightblue";
+    x.store.show = true;
+
+  </script>
+</body>
+
+</html>

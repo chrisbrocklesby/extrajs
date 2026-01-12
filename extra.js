@@ -1,4 +1,4 @@
-// ExtraJS: xstore/xcomputed/xwatch + ((...)) templating + xjs="..." runner
+// extra.js: x.store/x.watch/x.computed + ((...)) templating + x-js + x-if/x-else/x-show/x-bind/x-on/x-for
 (function () {
   // =====================
   // Store + templating
@@ -13,7 +13,9 @@
       var parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") base = parsed;
     }
-  } catch (_) {}
+  } catch (err) {
+    console.error("extra.js: failed to load session storage state:", err);
+  }
 
   var bindings = [];                  // template bindings
   var deps = new Map();               // topKey -> [bindings...]
@@ -28,6 +30,13 @@
   var computedDeps = new Map();              // topKey -> Set<entry>
   var currentComputed = null;                // entry being evaluated
 
+  // Directives
+  var ifBlocksByKey = new Map();     // topKey -> [block]
+  var showBlocksByKey = new Map();   // topKey -> [block]
+  var bindBlocksByKey = new Map();   // topKey -> [binding]
+  var forBlocksByKey = new Map();    // topKey -> [forBlock]
+  var DIRECTIVE_DONE = Symbol("extraJsDirectiveDone");
+
   // ---------- Persistence ----------
   function scheduleSave() {
     if (saveScheduled) return;
@@ -36,12 +45,15 @@
       saveScheduled = false;
       try {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(base));
-      } catch (_) {}
+      } catch (err) {
+        console.error("extra.js: failed to save session storage state:", err);
+      }
     }, 0);
   }
 
   // ---------- Path parsing: user.name, items[0].qty ----------
   function parsePath(expr) {
+    if (typeof expr !== "string") return null;
     expr = expr.trim();
     if (!expr) return null;
     var parts = [];
@@ -82,6 +94,7 @@
         parts.push(Number(num));
         skip();
       } else {
+        // unsupported syntax -> treat as invalid path
         return null;
       }
     }
@@ -127,21 +140,12 @@
         tokens.push({ p: path });
         keys.add(String(path[0]));
       } else {
-        tokens.push(m[0]); // keep raw
+        tokens.push(m[0]); // keep raw, invalid expr left as-is
       }
       last = re.lastIndex;
     }
     if (last < str.length) tokens.push(str.slice(last));
     return { t: tokens, k: keys };
-  }
-
-  function addBinding(b) {
-    bindings.push(b);
-    b.k.forEach(function (key) {
-      var list = deps.get(key);
-      if (!list) deps.set(key, list = []);
-      list.push(b);
-    });
   }
 
   function renderBinding(b) {
@@ -153,6 +157,17 @@
     }
     if (b.a == null) b.n.nodeValue = out;
     else b.n.setAttribute(b.a, out);
+  }
+
+  function addBinding(b) {
+    bindings.push(b);
+    b.k.forEach(function (key) {
+      var list = deps.get(key);
+      if (!list) deps.set(key, list = []);
+      list.push(b);
+    });
+    // render immediately
+    renderBinding(b);
   }
 
   function notifyBindings(topKey) {
@@ -172,23 +187,29 @@
       var ov = w.last;
       w.last = nv;
       w.inited = true;
-      try { w.fn(nv, ov); }
-      catch (err) { console.error("xwatch", err); }
+      try {
+        w.fn(nv, ov);
+      } catch (err) {
+        console.error("extra.js: x.watch error for path '" + w.parts.join(".") + "':", err);
+      }
     }
   }
 
   function xwatch(path, fn) {
     var parts = parsePath(path);
-    if (!parts || typeof fn !== "function") return;
+    if (!parts || typeof fn !== "function") {
+      console.warn("extra.js: x.watch: invalid arguments, expected (pathString, function). Got:", path, fn);
+      return;
+    }
     var top = String(parts[0]);
     var list = watchers.get(top);
     if (!list) watchers.set(top, list = []);
     list.push({ parts: parts, fn: fn, last: undefined, inited: false });
   }
-  window.xwatch = xwatch;
 
   // ---------- Computed props ----------
   function recomputeComputed(entry) {
+    // detach old deps
     entry.deps.forEach(function (key) {
       var set = computedDeps.get(key);
       if (set) {
@@ -200,9 +221,10 @@
 
     currentComputed = entry;
     var val;
-    try { val = entry.fn(); }
-    catch (err) {
-      console.error("xcomputed", entry.name, err);
+    try {
+      val = entry.fn();
+    } catch (err) {
+      console.error("extra.js: x.computed error for '" + entry.name + "':", err);
       val = undefined;
     }
     currentComputed = null;
@@ -212,7 +234,10 @@
   }
 
   function xcomputed(name, fn) {
-    if (!name || typeof name !== "string" || typeof fn !== "function") return;
+    if (!name || typeof name !== "string" || typeof fn !== "function") {
+      console.warn("extra.js: x.computed: invalid arguments, expected (string, function). Got:", name, fn);
+      return;
+    }
     computeds[name] = {
       name: name,
       fn: fn,
@@ -221,9 +246,8 @@
       dirty: true
     };
   }
-  window.xcomputed = xcomputed;
 
-  // ---------- Deep proxy for xstore ----------
+  // ---------- Deep proxy for x.store ----------
   function proxify(target, path) {
     if (target === null || typeof target !== "object") return target;
     var ex = proxyCache.get(target);
@@ -273,6 +297,10 @@
     // state bindings + watchers on that key
     notifyBindings(top);
     runWatchers(top);
+    runIfBlocks(top);
+    runShowBlocks(top);
+    runBindBlocks(top);
+    runForBlocks(top);
 
     // computed props that depend on that key
     var set = computedDeps.get(top);
@@ -282,23 +310,54 @@
       var entry = arr[i];
       entry.dirty = true;
       recomputeComputed(entry);
-      // notify bindings and watchers on computed name
-      notifyBindings(entry.name);
-      runWatchers(entry.name);
+      // notify dependents on computed name
+      var cname = entry.name;
+      notifyBindings(cname);
+      runWatchers(cname);
+      runIfBlocks(cname);
+      runShowBlocks(cname);
+      runBindBlocks(cname);
+      runForBlocks(cname);
     }
   }
 
   var xstore = proxify(base, []);
-  window.xstore = xstore;
 
   // ---------- DOM scan for (( ... )) ----------
-  function scanTemplates() {
-    var root = document.body || document;
+  function scanTemplatesIn(root, skipTemplates) {
+    if (!root) return;
+
+    function hasTemplateAttr(el) {
+      return !!(el && el.hasAttribute && (
+        el.hasAttribute("x-for") ||
+        el.hasAttribute("x-if") ||
+        el.hasAttribute("x-else")
+      ));
+    }
+
+    function isDescendantOfTemplate(el) {
+      var cur = el && el.parentNode;
+      while (cur) {
+        if (cur.nodeType === 1 && hasTemplateAttr(cur)) return true;
+        cur = cur.parentNode;
+      }
+      return false;
+    }
+
+    function isTextInTemplate(node) {
+      var cur = node && node.parentNode;
+      while (cur) {
+        if (cur.nodeType === 1 && hasTemplateAttr(cur)) return true;
+        cur = cur.parentNode;
+      }
+      return false;
+    }
 
     // text nodes
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     var n;
-    while (n = walker.nextNode()) {
+    while ((n = walker.nextNode())) {
+      if (skipTemplates && isTextInTemplate(n)) continue;
       var s = n.nodeValue;
       if (!s || s.indexOf("((") === -1) continue;
       var parsed = parseTemplate(s);
@@ -307,10 +366,14 @@
     }
 
     // attributes (excluding <script>)
-    var all = root.getElementsByTagName("*");
+    var all = root.getElementsByTagName ? root.getElementsByTagName("*") : [];
     for (var i = 0; i < all.length; i++) {
       var el = all[i];
       if (el.tagName === "SCRIPT") continue;
+      if (skipTemplates) {
+        if (el.hasAttribute("x-if") || el.hasAttribute("x-else")) continue;
+        if (isDescendantOfTemplate(el)) continue;
+      }
       var attrs = el.attributes;
       for (var j = 0; j < attrs.length; j++) {
         var at = attrs[j], val = at.value;
@@ -320,109 +383,608 @@
         addBinding({ n: el, a: at.name, t: pa.t, k: pa.k });
       }
     }
+  }
 
-    // initial render
-    for (var k = 0; k < bindings.length; k++) renderBinding(bindings[k]);
+  function initialScanTemplates() {
+    var root = document.body || document;
+    scanTemplatesIn(root, true);
   }
 
   // =====================
-  // xjs="..." runner
+  // x-js runner
   // =====================
   const fnCache = new Map();
   const XJS_RAN = Symbol("xjsRan");
 
-  // Run xjs="..." or data-xjs="..." on a single element
+  function getXjsCode(el) {
+    // Only support x-js (no xjs backwards compat)
+    return el.getAttribute("x-js");
+  }
+
+  // Run x-js on a single element
   function runXjsOnElement(el) {
     if (!(el instanceof Element)) return;
 
-    const raw = el.getAttribute("xjs") || el.getAttribute("data-xjs");
+    const raw = getXjsCode(el);
     if (!raw) return;
 
     const code = raw.trim();
+    if (!code) return;
 
     let fn = fnCache.get(code);
     if (!fn) {
-      fn = new Function(
-        "el",
-        `
-          return (async function () {
-            with (el) {
-              ${code}
-            }
-          }).call(el);
-        `
-      );
-      fnCache.set(code, fn);
+      try {
+        fn = new Function(
+          "el",
+          "x",
+          "store",
+          `
+            return (async function () {
+              with (el) {
+                ${code}
+              }
+            }).call(el);
+          `
+        );
+        fnCache.set(code, fn);
+      } catch (err) {
+        console.error("extra.js: x-js compile error on element:", el, err);
+        // mark as ran to avoid spamming errors on repeated mutations
+        el[XJS_RAN] = true;
+        return;
+      }
     }
 
     el[XJS_RAN] = true;
 
     try {
-      const result = fn(el);
+      const result = fn(el, window.x, xstore);
       if (result && typeof result.catch === "function") {
         result.catch((err) => {
-          console.error("xjs async error on element:", el, err);
+          console.error("extra.js: x-js async error on element:", el, err);
         });
       }
     } catch (err) {
-      console.error("xjs error on element:", el, err);
+      console.error("extra.js: x-js runtime error on element:", el, err);
     }
   }
 
-  // Run xjs="..." or data-xjs="..." for root and all descendants
-  function runXjsAttributes(root = document) {
-    if (
-      root instanceof Element &&
-      (root.hasAttribute("xjs") || root.hasAttribute("data-xjs")) &&
-      !root[XJS_RAN]
-    ) {
-      runXjsOnElement(root);
+  // Run x-js for root and all descendants
+  function runXjsAttributes(root) {
+    var baseNode = root || document;
+    if (baseNode instanceof Element) {
+      const hasAttr = baseNode.hasAttribute("x-js");
+      if (hasAttr && !baseNode[XJS_RAN]) runXjsOnElement(baseNode);
     }
 
-    root.querySelectorAll?.("[xjs],[data-xjs]").forEach((el) => {
+    baseNode.querySelectorAll?.("[x-js]").forEach((el) => {
       if (!el[XJS_RAN]) runXjsOnElement(el);
     });
   }
 
-  function initXjsRunner() {
-    // initial run
-    runXjsAttributes(document);
+  // =====================
+  // x-if / x-else / x-show / x-bind / x-on / x-for
+  // =====================
 
-    const observer = new MutationObserver((muts) => {
-      for (const m of muts) {
-        if (
-          m.type === "attributes" &&
-          (m.attributeName === "xjs" || m.attributeName === "data-xjs") &&
-          m.target instanceof Element
-        ) {
-          // Attribute changed: allow re-run even if it ran before
-          delete m.target[XJS_RAN];
-          runXjsOnElement(m.target);
-        }
+  // ----- x-if / x-else -----
+  function registerIfBlock(block) {
+    var list = ifBlocksByKey.get(block.topKey);
+    if (!list) ifBlocksByKey.set(block.topKey, list = []);
+    list.push(block);
+    renderIfBlock(block);
+  }
 
-        if (m.type === "childList") {
-          for (const n of m.addedNodes) {
-            if (n.nodeType !== 1) continue;
-            runXjsAttributes(n);
-          }
-        }
+  function runIfBlocks(topKey) {
+    var list = ifBlocksByKey.get(topKey);
+    if (!list) return;
+    for (var i = 0; i < list.length; i++) renderIfBlock(list[i]);
+  }
+
+  function renderIfBlock(block) {
+    var condVal = getPath(xstore, block.parts);
+    var truthy = !!condVal;
+    var wantTemplate = truthy ? block.ifTemplate : block.elseTemplate;
+
+    var cur = block.currentEl || null;
+
+    // if we don't want any element
+    if (!wantTemplate) {
+      if (cur && cur.parentNode) cur.parentNode.removeChild(cur);
+      block.currentEl = null;
+      block.currentKind = null;
+      return;
+    }
+
+    // same kind as before -> keep
+    var wantKind = truthy ? "if" : "else";
+    if (cur && block.currentKind === wantKind) return;
+
+    // remove old
+    if (cur && cur.parentNode) cur.parentNode.removeChild(cur);
+
+    // insert new from template
+    var clone = wantTemplate.cloneNode(true);
+    block.currentKind = wantKind;
+    block.currentEl = clone;
+
+    var parent = block.placeholder.parentNode;
+    if (!parent) return;
+    parent.insertBefore(clone, block.placeholder.nextSibling);
+
+    // process new subtree
+    try {
+      scanTemplatesIn(clone);
+      processDirectives(clone);
+      runXjsAttributes(clone);
+    } catch (err) {
+      console.error("extra.js: x-if render error:", err);
+    }
+  }
+
+  // ----- x-show -----
+  function registerShowBlock(block) {
+    var list = showBlocksByKey.get(block.topKey);
+    if (!list) showBlocksByKey.set(block.topKey, list = []);
+    list.push(block);
+    renderShowBlock(block);
+  }
+
+  function runShowBlocks(topKey) {
+    var list = showBlocksByKey.get(topKey);
+    if (!list) return;
+    for (var i = 0; i < list.length; i++) renderShowBlock(list[i]);
+  }
+
+  function renderShowBlock(block) {
+    var condVal = getPath(xstore, block.parts);
+    var truthy = !!condVal;
+    block.el.hidden = !truthy;
+  }
+
+  // ----- x-bind:* -----
+  function registerBindBlock(binding) {
+    var list = bindBlocksByKey.get(binding.topKey);
+    if (!list) bindBlocksByKey.set(binding.topKey, list = []);
+    list.push(binding);
+    renderBindBlock(binding);
+  }
+
+  function runBindBlocks(topKey) {
+    var list = bindBlocksByKey.get(topKey);
+    if (!list) return;
+    for (var i = 0; i < list.length; i++) renderBindBlock(list[i]);
+  }
+
+  function applyBoundValue(el, attr, val) {
+    // null/false/undefined => remove
+    if (val == null || val === false) {
+      if (attr in el) {
+        try {
+          if (typeof el[attr] === "boolean") el[attr] = false;
+        } catch (_) {}
       }
-    });
+      el.removeAttribute(attr);
+      return;
+    }
 
-    observer.observe(document.body || document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["xjs", "data-xjs"],
+    // Booleans => presence-only
+    if (val === true) {
+      if (attr in el) {
+        try { el[attr] = true; } catch (_) {}
+      }
+      el.setAttribute(attr, "");
+      return;
+    }
+
+    // normal value
+    if (attr in el) {
+      try { el[attr] = val; } catch (_) {}
+    }
+    el.setAttribute(attr, String(val));
+  }
+
+  function renderBindBlock(binding) {
+    var val = getPath(xstore, binding.parts);
+    applyBoundValue(binding.el, binding.attr, val);
+  }
+
+  // ----- x-on:* -----
+  const xOnFnCache = new Map();
+
+  function attachXOn(el, eventName, code) {
+    if (!code) return;
+    var trimmed = code.trim();
+    if (!trimmed) return;
+
+    var key = eventName + "::" + trimmed;
+    var fn = xOnFnCache.get(key);
+    if (!fn) {
+      try {
+        fn = new Function(
+          "el",
+          "event",
+          "x",
+          "store",
+          `
+            return (async function () {
+              with (el) {
+                ${trimmed}
+              }
+            }).call(el);
+          `
+        );
+        xOnFnCache.set(key, fn);
+      } catch (err) {
+        console.error("extra.js: x-on compile error for", eventName, "on element:", el, err);
+        return;
+      }
+    }
+
+    el.addEventListener(eventName, function (evt) {
+      try {
+        var result = fn(el, evt, window.x, xstore);
+        if (result && typeof result.catch === "function") {
+          result.catch(function (err) {
+            console.error("extra.js: x-on async error for", eventName, "on element:", el, err);
+          });
+        }
+      } catch (err) {
+        console.error("extra.js: x-on runtime error for", eventName, "on element:", el, err);
+      }
     });
   }
 
+  // ----- x-for -----
+  function parseForExpression(expr) {
+    if (typeof expr !== "string") return null;
+    expr = expr.trim();
+    if (!expr) return null;
+    // very simple: "<var> in <path>"
+    var m = expr.match(/^([A-Za-z_$][A-Za-z0-9_$]*)\s+in\s+(.+)$/);
+    if (!m) {
+      console.warn("extra.js: x-for: invalid expression (expected 'item in path'):", expr);
+      return null;
+    }
+    var varName = m[1];
+    var colExpr = m[2].trim();
+    var parts = parsePath(colExpr);
+    if (!parts) {
+      console.warn("extra.js: x-for: invalid collection path in expression:", expr);
+      return null;
+    }
+    return {
+      varName: varName,
+      parts: parts,
+      topKey: String(parts[0])
+    };
+  }
+
+  function computeForDeps(templateHTML, varName, topKey) {
+    var keys = new Set();
+    keys.add(topKey);
+
+    var re = /\(\(\s*([^()]+)\s*\)\)/g, m;
+    while ((m = re.exec(templateHTML))) {
+      var expr = m[1].trim();
+      if (!expr) continue;
+
+      // local var usage => already covered by collection topKey
+      if (
+        expr === varName ||
+        expr.startsWith(varName + ".") ||
+        expr.startsWith(varName + "[")
+      ) {
+        continue;
+      }
+
+      var parts = parsePath(expr);
+      if (parts) keys.add(String(parts[0]));
+    }
+
+    return Array.from(keys);
+  }
+
+  function renderForItem(templateHTML, varName, item) {
+    // Replace ((expr)) in templateHTML
+    return templateHTML.replace(/\(\(\s*([^()]+)\s*\)\)/g, function (_, exprRaw) {
+      var expr = exprRaw.trim();
+      if (!expr) return "";
+
+      // local variable (e.g. product, product.name, product[0].name)
+      if (
+        expr === varName ||
+        expr.startsWith(varName + ".") ||
+        expr.startsWith(varName + "[")
+      ) {
+        var tail = expr.slice(varName.length); // e.g. ".name" or "[0].name"
+        if (!tail) return item == null ? "" : String(item);
+
+        var pathStr = "x" + tail; // 'x.name', 'x[0].name'
+        var parts = parsePath(pathStr);
+        var cur = item;
+        if (parts) {
+          for (var i = 1; i < parts.length; i++) {
+            if (cur == null) break;
+            cur = cur[parts[i]];
+          }
+        } else {
+          cur = undefined;
+        }
+        return cur == null ? "" : String(cur);
+      }
+
+      // global store path
+      var partsStore = parsePath(expr);
+      if (!partsStore) return "";
+      var v = getPath(xstore, partsStore);
+      return v == null ? "" : String(v);
+    });
+  }
+
+  function registerForBlock(block) {
+    // register under each dependency key
+    var keys = block.depsKeys;
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var list = forBlocksByKey.get(key);
+      if (!list) forBlocksByKey.set(key, list = []);
+      list.push(block);
+    }
+    renderForBlock(block);
+  }
+
+  function runForBlocks(topKey) {
+    var list = forBlocksByKey.get(topKey);
+    if (!list) return;
+    for (var i = 0; i < list.length; i++) {
+      renderForBlock(list[i]);
+    }
+  }
+
+  function renderForBlock(block) {
+    var col = getPath(xstore, block.parts);
+    if (!Array.isArray(col)) col = [];
+
+    var el = block.el;
+    // clear and rebuild
+    el.innerHTML = "";
+
+    for (var i = 0; i < col.length; i++) {
+      var item = col[i];
+      var html = renderForItem(block.templateHTML, block.varName, item);
+      el.insertAdjacentHTML("beforeend", html);
+    }
+
+    // process nested directives / x-js in the new children
+    try {
+      processDirectives(el);
+      runXjsAttributes(el);
+    } catch (err) {
+      console.error("extra.js: x-for render error:", err);
+    }
+  }
+
+  // ---------- Directive scanner ----------
+  function processDirectives(root) {
+    var base = root || (document.body || document);
+    if (!base) return;
+
+    var walker = document.createTreeWalker(
+      base,
+      NodeFilter.SHOW_ELEMENT
+    );
+    var node = base instanceof Element ? base : walker.nextNode();
+
+    if (base instanceof Element) {
+      processElementDirectives(base);
+    }
+
+    while ((node = walker.nextNode())) {
+      processElementDirectives(node);
+    }
+  }
+
+  function processElementDirectives(el) {
+    if (!(el instanceof Element)) return;
+    if (el[DIRECTIVE_DONE]) return;
+
+    var hasXIf = el.hasAttribute("x-if");
+    var hasXElse = el.hasAttribute("x-else");
+    var hasXShow = el.hasAttribute("x-show");
+    var hasXFor = el.hasAttribute("x-for");
+
+    // x-if (with optional x-else)
+    if (hasXIf) {
+      var expr = el.getAttribute("x-if") || "";
+      el.removeAttribute("x-if");
+      var parts = parsePath(expr);
+      if (parts) {
+        var topKey = String(parts[0]);
+
+        var placeholder = document.createComment("x-if:" + expr);
+        var parent = el.parentNode;
+        if (parent) parent.insertBefore(placeholder, el);
+
+        // check next sibling for x-else
+        var elseTemplate = null;
+        var next = el.nextElementSibling;
+        if (next && next.hasAttribute("x-else")) {
+          next.removeAttribute("x-else");
+          elseTemplate = next;
+          if (next.parentNode) next.parentNode.removeChild(next);
+          next[DIRECTIVE_DONE] = true;
+        }
+
+        // detach original template
+        if (el.parentNode) el.parentNode.removeChild(el);
+
+        var block = {
+          topKey: topKey,
+          parts: parts,
+          placeholder: placeholder,
+          ifTemplate: el,
+          elseTemplate: elseTemplate,
+          currentEl: null,
+          currentKind: null
+        };
+        el[DIRECTIVE_DONE] = true;
+        if (elseTemplate) elseTemplate[DIRECTIVE_DONE] = true;
+        registerIfBlock(block);
+      } else {
+        console.warn("extra.js: invalid x-if expression:", expr, "on element:", el);
+      }
+    } else if (hasXElse) {
+      // x-else without matching x-if => ignore, just strip attribute
+      console.warn("extra.js: x-else without a preceding x-if. Element:", el);
+      el.removeAttribute("x-else");
+    }
+
+    // x-show
+    if (hasXShow) {
+      var showExpr = el.getAttribute("x-show") || "";
+      el.removeAttribute("x-show");
+      var showParts = parsePath(showExpr);
+      if (showParts) {
+        var topShow = String(showParts[0]);
+        var showBlock = {
+          el: el,
+          parts: showParts,
+          topKey: topShow
+        };
+        registerShowBlock(showBlock);
+      } else {
+        console.warn("extra.js: invalid x-show expression:", showExpr, "on element:", el);
+      }
+    }
+
+    // x-for (container-based, innerHTML as template)
+    if (hasXFor) {
+      var forExpr = el.getAttribute("x-for") || "";
+      el.removeAttribute("x-for");
+      var parsedFor = parseForExpression(forExpr);
+      if (parsedFor) {
+        var tpl = el.innerHTML;
+        var depsKeys = computeForDeps(tpl, parsedFor.varName, parsedFor.topKey);
+        var block = {
+          el: el,
+          varName: parsedFor.varName,
+          parts: parsedFor.parts,
+          topKey: parsedFor.topKey,
+          templateHTML: tpl,
+          depsKeys: depsKeys
+        };
+        el[DIRECTIVE_DONE] = true;
+        registerForBlock(block);
+        // IMPORTANT: we don't process children here; renderForBlock will.
+        return; // children are rebuilt, so skip below scans for this element now
+      } else {
+        console.warn("extra.js: ignoring x-for with invalid expression:", forExpr, "on element:", el);
+      }
+    }
+
+    // x-bind:* attributes
+    var attrs = el.attributes;
+    for (var i = 0; i < attrs.length; i++) {
+      var at = attrs[i];
+      if (!at) continue;
+      var name = at.name;
+      if (name.slice(0, 7) === "x-bind:") {
+        var attrName = name.slice(7);
+        if (!attrName) continue;
+        var val = at.value || "";
+        var partsBind = parsePath(val);
+        if (!partsBind) {
+          console.warn("extra.js: invalid x-bind expression:", val, "on element:", el);
+          continue;
+        }
+        var topB = String(partsBind[0]);
+        var binding = {
+          el: el,
+          attr: attrName,
+          parts: partsBind,
+          topKey: topB
+        };
+        registerBindBlock(binding);
+      }
+    }
+
+    // x-on:* attributes
+    for (var j = 0; j < attrs.length; j++) {
+      var at2 = attrs[j];
+      if (!at2) continue;
+      var n2 = at2.name;
+      if (n2.slice(0, 5) === "x-on:") {
+        var evtName = n2.slice(5);
+        if (!evtName) {
+          console.warn("extra.js: x-on without event name on element:", el);
+          continue;
+        }
+        attachXOn(el, evtName, at2.value || "");
+      }
+    }
+
+    el[DIRECTIVE_DONE] = true;
+  }
+
   // =====================
-  // ExtraJS init + export
+  // extra.js: init + export
   // =====================
+  function initXjsRunner() {
+    // initial run
+    try {
+      runXjsAttributes(document);
+    } catch (err) {
+      console.error("extra.js: initial x-js run failed:", err);
+    }
+
+    try {
+      const observer = new MutationObserver((muts) => {
+        for (const m of muts) {
+          if (
+            m.type === "attributes" &&
+            m.attributeName === "x-js" &&
+            m.target instanceof Element
+          ) {
+            // Attribute changed: allow re-run even if it ran before
+            delete m.target[XJS_RAN];
+            runXjsOnElement(m.target);
+          }
+
+          if (m.type === "childList") {
+            for (const n of m.addedNodes) {
+              if (n.nodeType !== 1) continue;
+              // new subtree: templating + directives + x-js
+              try {
+                scanTemplatesIn(n);
+                processDirectives(n);
+                runXjsAttributes(n);
+              } catch (err) {
+                console.error("extra.js: error while processing added nodes:", err);
+              }
+            }
+          }
+        }
+      });
+
+      observer.observe(document.body || document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["x-js"],
+      });
+    } catch (err) {
+      console.error("extra.js: failed to initialise MutationObserver:", err);
+    }
+  }
+
   function initExtraJS() {
-    scanTemplates();
-    initXjsRunner();
+    try {
+      initialScanTemplates();                 // ((...)) outside x-for
+      processDirectives(document.body || document); // x-if/x-show/x-bind/x-on/x-for
+      initXjsRunner();                        // x-js
+    } catch (err) {
+      console.error("extra.js: init failed:", err);
+    }
   }
 
   if (document.readyState === "loading") {
@@ -431,12 +993,17 @@
     initExtraJS();
   }
 
-  // Public facade
-  window.ExtraJS = {
+  // Public API: x.*
+  var xApi = {
     store: xstore,
     watch: xwatch,
     computed: xcomputed,
-    runXjs: runXjsAttributes,
+    apply: runXjsAttributes
   };
 
+  // Single official namespace
+  window.x = xApi;
+
+  // Optional library alias
+  window.extra = xApi;
 })();
