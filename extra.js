@@ -17,6 +17,11 @@
     console.error("extra.js: failed to load session storage state:", err);
   }
 
+  // Global config for extra.js (reserved for future options)
+  var config = {
+    // add flags here later, e.g. debug: true
+  };
+
   var bindings = [];                  // template bindings
   var deps = new Map();               // topKey -> [bindings...]
   var proxyCache = new WeakMap();     // target -> proxy
@@ -272,6 +277,7 @@
       },
       set: function (t, prop, value, r) {
         if (typeof prop === "symbol") return Reflect.set(t, prop, value, r);
+
         var old = t[prop];
         if (old === value) return true;
         t[prop] = value;
@@ -995,10 +1001,11 @@
 
   // Public API: x.*
   var xApi = {
+    config: config,
     store: xstore,
     watch: xwatch,
     computed: xcomputed,
-    apply: runXjsAttributes
+    apply: runXjsAttributes,
   };
 
   // Single official namespace
