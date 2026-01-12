@@ -431,8 +431,4 @@
     runXjs: runXjsAttributes,
   };
 
-  // Optional $-style aliases for compatibility
-  window.$store = xstore;
-  window.$watch = xwatch;
-  window.$computed = xcomputed;
 })();
