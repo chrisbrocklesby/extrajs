@@ -1,6 +1,6 @@
 # ExtraJS
 
-Extra power, minimum JS.
+HTML with extras, Just enough JS, skip the framework
 
 ExtraJS is a tiny HTML add-on that brings a few missing extras to standard markup: reactive bindings with `((...))` and inline behavior via `xjs`. The JavaScript layer is intentionally small and secondary — it exists to power those HTML-first features.
 
