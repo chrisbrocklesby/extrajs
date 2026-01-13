@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="extra.js"></script>
+  <script src="extra.min.js"></script>
   <title>Document</title>
 </head>
 
@@ -34,9 +34,12 @@
   <button x-on:click="x.store.show = x.store.show ? false : true">Show/Hide</button>
 
   <br><br>
-  <div x-js="qetInterval(() => {x.store.time = (new Date()).toLocaleTimeString()}, 1000);">((time))</div>
+  <div x-js="setInterval(() => {x.store.time = (new Date()).toLocaleTimeString()}, 1000);">((time))</div>
 
   <h2>Miss: ((missing))</h2>
+
+  <div id="results">Hello </div>
+  <button x-http="call.html" x-target="#results" x-swap="append">Load Call</button>
 
 
   <script>

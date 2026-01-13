@@ -1,0 +1,23 @@
+x-http
+x-method (do we need it ? if POST /page/)
+x-target
+x-swap
+x-trigger
+x-indicator (or x-loader)
+x-headers
+x-data (or x-body or x-json, I want to be able to use x-http with FORM, JSON and HTML)
+
+
+
+x-swap: needs... before, after, outer
+
+x-trigger: loop:300, time:300, repeat:300, load:300 (repeating)
+
+x-json/x-body I am not likings... seems tricky to end user.
+
+
+
+	•	click / submit / input:300 / change:300 → event + debounce
+	•	load → run once after element is processed
+	•	load:300 → run once after 300ms
+	•	every:300 → repeat every 300ms (setInterval) or maybe "interval:300" ?
