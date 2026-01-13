@@ -77,25 +77,6 @@
           </a>
         </div>
 
-        <!-- Small, lighter “who/what” strip -->
-        <div class="mt-5 grid gap-4 sm:grid-cols-2 text-xs sm:text-sm text-slate-300">
-          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p class="font-semibold text-slate-100 mb-1">Great for</p>
-            <ul class="space-y-1">
-              <li>Projects that don’t need React or a build.</li>
-              <li>Plain HTML with a few interactive “islands”.</li>
-              <li>Dashboards, admin pages, small apps.</li>
-            </ul>
-          </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-            <p class="font-semibold text-slate-100 mb-1">You write / you get</p>
-            <ul class="space-y-1">
-              <li><code>&#40;&#8203;&#40;count&#41;&#8203;&#41;</code> in your HTML → reactive text.</li>
-              <li><code>x.store.count++</code> in JS → shared state.</li>
-              <li><code>x-http="…"</code> → drop-in HTML swaps over HTTP.</li>
-            </ul>
-          </div>
-        </div>
       </div>
 
       <!-- Right: code + live demo -->
@@ -114,7 +95,7 @@
             </span>
           </div>
           <div class="bg-[#020617]">
-            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: ((count))&lt;/div&gt;
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/div&gt;
 &lt;button x-on:click="x.store.count++"&gt;+&lt;/button&gt;
 &lt;button x-on:click="x.store.count--"&gt;-&lt;/button&gt;</code></pre>
           </div>
@@ -155,7 +136,7 @@
         </p>
       </div>
 
-      <div class="grid gap-6 lg:grid-cols-3 text-sm">
+      <div class="grid gap-6 text-sm">
         <!-- Step 1 -->
         <div class="space-y-3">
           <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 1 · Load extra.js</p>
