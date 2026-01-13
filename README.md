@@ -1,19 +1,23 @@
 # ExtraJS
 
-A tiny, reactive, no-build HTML framework.  
+A tiny, reactive, no-build HTML framework.
 State, templating, directives, inline JS, HTTP, and events — all from standard HTML.
 
-- No bundler  
-- No virtual DOM  
-- No compile step  
-- Works in single files or large apps  
-- Automatic reactivity  
-- Session persistence built in  
+- No bundler
+- No virtual DOM
+- No compile step
+- Works in single files or large apps
+- Automatic reactivity
+- Session persistence built in
 
-Load it:
+Local Install:
 
 ```html
 <script src="extra.js"></script>
+```
+CDN Install:
+```html
+<script src="https://cdn.jsdelivr.net/gh/chrisbrocklesby/extrajs@latest/extra.js"></script>
 ```
 
 ---
@@ -665,5 +669,5 @@ This re-runs `x-js` and binds `x-http` on new nodes.
 
 ## License
 
-MIT License  
+MIT License
 See `LICENSE` file.
