@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>extra.js – Tiny HTML-first reactivity & AJAX</title>
+  <title>Extra.js – HTML-first reactive state, templating & AJAX</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,16 +27,16 @@
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="#" class="flex items-center gap-2">
         <span class="text-lg font-semibold tracking-tight">
-          <img src="images/extra-js-logo.png" alt="extra.js" class="h-10 sm:h-12 w-auto inline-block" />
+          <img src="images/extra-js-logo.png" alt="extra.js" class="h-12 w-auto inline-block" />
         </span>
       </a>
-      <nav class="flex items-center gap-3 text-xs sm:text-sm">
+      <nav class="flex items-center gap-3 text-sm">
         <a href="#get-started" class="text-slate-300 hover:text-white">Get started</a>
+        <a href="#features" class="text-slate-300 hover:text-white">Features</a>
         <a href="#examples" class="text-slate-300 hover:text-white">Examples</a>
-        <a href="#features" class="text-slate-300 hover:text-white hidden sm:inline">What it can do</a>
         <a href="#api" class="text-slate-300 hover:text-white hidden sm:inline">API</a>
         <a href="https://github.com/chrisbrocklesby/extrajs"
-          class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-[0.7rem] sm:text-xs font-medium hover:border-sky-500 hover:text-white">
+          class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium hover:border-sky-500 hover:text-white">
           <span>GitHub</span>
           <span class="text-slate-400">→</span>
         </a>
@@ -47,60 +47,41 @@
   <main class="max-w-6xl mx-auto px-4 py-10 space-y-16">
 
     <!-- HERO -->
-    <section id="hero"
-      class="max-w-6xl mx-auto px-4 py-10 lg:py-16 grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-center">
-      <!-- Left: copy -->
+    <section class="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-start">
       <div class="space-y-6">
-        <p class="text-[0.65rem] font-semibold tracking-[0.26em] uppercase text-sky-400">
-          NO BUILD · HTML-FIRST · REACTIVE STATE
+        <p class="text-xs font-semibold tracking-[0.2em] uppercase text-sky-400">
+          no-build · reactive state · ajax
         </p>
-
         <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">
           HTML-first interactivity with state, reactivity, and AJAX — no build required
         </h1>
-
         <p class="text-slate-300 text-sm sm:text-base max-w-xl">
-          Drop a single script into any HTML page and get a tiny reactive store, simple
-          template bindings with <code class="text-sky-300">&#40;&#8203;&#40;path&#41;&#8203;&#41;</code>,
-          and HTMX-style HTML swaps using <code class="text-sky-300">x-http</code> — all
-          without a bundler or virtual DOM.
+          Load one script and turn plain HTML into an interactive layer. Bind values with
+          <code class="text-sky-300">&#40;&#8203;&#40;path&#41;&#8203;&#41;</code>, keep state in
+          <code class="text-sky-300">x.store</code>, and control behaviour with attributes and
+          inline <code class="text-sky-300">x-js</code> for those custom light custom JS bits. Loop, show, hide, update,
+          and fetch HTML
+          with built-in AJAX — all without a bundler or virtual DOM.
         </p>
 
         <div class="flex flex-wrap items-center gap-3 text-sm">
           <a href="#get-started"
             class="inline-flex items-center rounded-md bg-sky-500 px-4 py-2 font-medium text-slate-950 hover:bg-sky-400">
-            Get started in 30 seconds
+            Get started
           </a>
-          <a href="#examples"
+          <a href="https://github.com/chrisbrocklesby/extrajs"
             class="inline-flex items-center rounded-md border border-slate-700 px-4 py-2 font-medium text-slate-100 hover:border-sky-500">
-            See live examples
+            View on GitHub
           </a>
-        </div>
-
-        <!-- Small, lighter “who/what” strip -->
-        <div class="mt-5 grid gap-4 sm:grid-cols-2 text-xs sm:text-sm text-slate-300">
-          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p class="font-semibold text-slate-100 mb-1">Great for</p>
-            <ul class="space-y-1">
-              <li>Projects that don’t need React or a build.</li>
-              <li>Plain HTML with a few interactive “islands”.</li>
-              <li>Dashboards, admin pages, small apps.</li>
-            </ul>
-          </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-            <p class="font-semibold text-slate-100 mb-1">You write / you get</p>
-            <ul class="space-y-1">
-              <li><code>&#40;&#8203;&#40;count&#41;&#8203;&#41;</code> in your HTML → reactive text.</li>
-              <li><code>x.store.count++</code> in JS → shared state.</li>
-              <li><code>x-http="…"</code> → drop-in HTML swaps over HTTP.</li>
-            </ul>
-          </div>
+          <span class="text-xs text-slate-400">
+            State · template bindings · directives · inline JS + AJAX
+          </span>
         </div>
       </div>
 
-      <!-- Right: code + live demo -->
+      <!-- hero code + live -->
       <div class="space-y-4">
-        <!-- Code box -->
+        <!-- SNIPPET -->
         <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-xl border border-slate-800">
           <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
             <div class="flex items-center gap-2">
@@ -109,23 +90,19 @@
               <span class="w-3 h-3 rounded-full bg-green-500"></span>
             </div>
             <span
-              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">
-              COUNTER
-            </span>
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">COUNTER</span>
           </div>
           <div class="bg-[#020617]">
-            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: ((count))&lt;/div&gt;
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/div&gt;
 &lt;button x-on:click="x.store.count++"&gt;+&lt;/button&gt;
 &lt;button x-on:click="x.store.count--"&gt;-&lt;/button&gt;</code></pre>
           </div>
         </div>
 
-        <!-- Live demo -->
+        <!-- LIVE -->
         <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm">
-          <p class="mb-3 text-xs uppercase tracking-wide text-slate-400 font-semibold">
-            Live: counter
-          </p>
-          <div class="inline-flex flex-wrap items-center gap-3">
+          <p class="mb-3 text-xs uppercase tracking-wide text-slate-400 font-semibold">LIVE: COUNTER</p>
+          <div class="inline-flex items-center gap-3">
             <span class="px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700">
               Count: <span class="font-semibold">((count))</span>
             </span>
@@ -138,128 +115,168 @@
               –
             </button>
           </div>
-          <p class="mt-3 text-xs text-slate-400">
-            In a script tag add:
-            <code>x.store.count = 0</code>
-          </p>
         </div>
       </div>
     </section>
 
-    <!-- QUICK START / INSTALL -->
+    <!-- INSTALL / GET STARTED -->
     <section id="get-started" class="space-y-8">
-      <div class="space-y-2">
-        <h2 class="text-2xl font-semibold tracking-tight">Quick start</h2>
-        <p class="text-sm text-slate-300 max-w-2xl">
-          Three steps: include the script, set some state, and bind it in your HTML.
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">Install extra.js</h2>
+        <p class="text-sm text-slate-300 mt-1">
+          Use a local copy, or load it from a CDN. No tooling required.
+        </p>
+      </div>
+
+      <!-- LOCAL -->
+      <div class="space-y-4">
+        <p class="text-xs font-semibold tracking-[0.2em] uppercase text-sky-400">Local file</p>
+        <p class="text-sm text-slate-300">
+          Drop <code>extra.js</code> next to your HTML and include it:
+        </p>
+
+        <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
+          <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">INSTALL
+              LOCAL</span>
+          </div>
+
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;script src="extra.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello &#40;&#8203;&#40;name&#41;&#8203;&#41;&lt;/h1&gt;
+  &lt;script&gt;
+    x.store.name = "extra.js"
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- CDN -->
+      <div class="space-y-4">
+        <p class="text-xs font-semibold tracking-[0.2em] uppercase text-sky-400">CDN</p>
+        <p class="text-sm text-slate-300">
+          Pull directly from jsDelivr (GitHub version):
+        </p>
+
+        <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
+          <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">INSTALL
+              CDN</span>
+          </div>
+
+          <div class="bg-[#020617]">
+            <pre
+              class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/gh/chrisbrocklesby/extrajs@latest/extra.js"&gt;&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400">
+          The globals are available as <code>x</code> and <code>extra</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="space-y-8">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">What's included</h2>
+        <p class="text-sm text-slate-300 mt-1 max-w-2xl">
+          Every feature below maps directly to the README. ExtraJS stays tiny while covering state, templating,
+          directives, HTTP requests, and runtime helpers.
         </p>
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3 text-sm">
-        <!-- Step 1 -->
-        <div class="space-y-3">
-          <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 1 · Load extra.js</p>
-          <p class="text-slate-300">
-            Use from a CDN or install locally. No tooling required.
-          </p>
-
-
-          <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
-            <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-              </div>
-              <span
-                class="absolute left-1/2 -translate-x-1/2 text-[0.65rem] uppercase tracking-wide text-slate-400 font-semibold">CDN</span>
-            </div>
-
-            <div class="bg-[#020617]">
-              <pre
-                class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 leading-relaxed"><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/gh/chrisbrocklesby/extrajs@latest/extra.js"&gt;&lt;/script&gt;</code></pre>
-            </div>
-          </div>
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
+          <h3 class="font-semibold text-slate-100">Core concepts</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x.store</code> - reactive global state (auto updates the DOM).</li>
+            <li><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> - render store/computed values in text or
+              attributes.</li>
+            <li><code>x-js</code> - run inline JS when elements mount (async allowed).</li>
+            <li><code>x.computed</code> - derived values that update automatically.</li>
+            <li><code>x.watch</code> - run logic whenever a store path changes.</li>
+            <li>Session persistence – <code>x.store</code> survives reloads via <code>sessionStorage</code>.</li>
+            <li>Manual re-scan – <code>x.apply()</code> to process new DOM after swaps.</li>
+          </ul>
         </div>
 
-        <!-- Step 2 -->
-        <div class="space-y-3">
-          <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 2 · Define some state</p>
-          <p class="text-slate-300">
-            Use <code>x.store</code> for global reactive state. It’s just a plain object that survives refreshes in
-            <code>sessionStorage</code>.
-          </p>
-          <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
-            <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-              </div>
-              <span
-                class="absolute left-1/2 -translate-x-1/2 text-[0.65rem] uppercase tracking-wide text-slate-400 font-semibold">STATE</span>
-            </div>
-            <div class="bg-[#020617]">
-              <pre class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 leading-relaxed"><code class="language-html">&lt;script&gt;
-  x.store.name = "extra.js"
-  x.store.count = 0
-&lt;/script&gt;</code></pre>
-            </div>
-          </div>
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
+          <h3 class="font-semibold text-slate-100">Directives</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x-if</code> / <code>x-else</code> - conditional insert/remove blocks.</li>
+            <li><code>x-show</code> - toggle visibility with <code>hidden</code> (keeps DOM).</li>
+            <li><code>x-bind:attr</code> - bind properties/attributes, including booleans.</li>
+            <li><code>x-on:event</code> - inline event handlers with access to <code>el</code>.</li>
+            <li><code>x-for</code> - loop over arrays with local variables.</li>
+          </ul>
         </div>
 
-        <!-- Step 3 -->
-        <div class="space-y-3">
-          <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 3 · Bind in HTML</p>
-          <p class="text-slate-300">
-            Use <code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> to read from the store and simple
-            <code>x-on</code> handlers to update it.
-          </p>
-          <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
-            <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-              </div>
-              <span
-                class="absolute left-1/2 -translate-x-1/2 text-[0.65rem] uppercase tracking-wide text-slate-400 font-semibold">HELLO
-                WORLD</span>
-            </div>
-            <div class="bg-[#020617]">
-              <pre class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 leading-relaxed"><code class="language-html">&lt;h1&gt;Hello &#40;&#8203;&#40;name&#41;&#8203;&#41;&lt;/h1&gt;
-&lt;p&gt;Clicks: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/p&gt;
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
+          <h3 class="font-semibold text-slate-100">HTTP helpers</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x-http</code> - fetch and swap HTML/text directly into targets.</li>
+            <li><code>x-method</code> - override HTTP methods (GET/POST/DELETE/etc).</li>
+            <li><code>x-target</code> / <code>x-target-error</code> - success and error targets.</li>
+            <li><code>x-swap</code> - <code>inner</code>, <code>append</code>, <code>prepend</code>,
+              <code>before</code>, <code>after</code>, <code>outer</code>.
+            </li>
+            <li><code>x-trigger</code> - click/submit, <code>load</code>, <code>every:ms</code>, <code>event:ms</code>
+              debounce.</li>
+            <li><code>x-indicator</code> - show loading elements while requests run.</li>
+            <li><code>x-headers</code> - attach custom request headers.</li>
+            <li><code>x-confirm</code> - confirm dialogs before sending.</li>
+            <li><code>x-form</code> / <code>x-json</code> - form-encoded or JSON body helpers.</li>
+          </ul>
+        </div>
+      </div>
 
-&lt;button x-on:click="x.store.count++"&gt;
-  Click me
-&lt;/button&gt;</code></pre>
-            </div>
-          </div>
-
-          <p class="text-xs text-slate-400">
-            That’s enough to build simple dashboards, admin panels, marketing pages with reactive “islands”, and more.
-          </p>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-xs sm:text-sm text-slate-300">
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
+          No bundler, no compile step, no virtual DOM.
+        </div>
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
+          Works in single-file demos or larger apps.
+        </div>
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
+          Automatic reactivity with tiny, HTML-first syntax.
         </div>
       </div>
     </section>
 
-    <!-- LIVE EXAMPLES -->
+    <!-- EXAMPLES -->
     <section id="examples" class="space-y-10">
       <div>
-        <h2 class="text-2xl font-semibold tracking-tight">Live examples</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">Usage & examples</h2>
         <p class="text-sm text-slate-300 mt-1 max-w-2xl">
-          These are small, copy-paste friendly examples that show the main pieces: state, inputs, toggles, loops,
-          computed values, and AJAX.
+          extra.js gives you a reactive store, templating, directives and inline JS with
+          minimal syntax. The examples below are all live.
         </p>
       </div>
 
-      <!-- State + templating -->
+      <!-- 1. Store + templating -->
       <div class="space-y-4">
         <div class="space-y-3">
           <h3 class="text-lg font-semibold">State &amp; templating</h3>
-          <p class="text-xs text-slate-400">
-            A single store and <code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> bindings.
-          </p>
 
           <!-- SNIPPET -->
           <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
@@ -299,7 +316,7 @@
         </div>
       </div>
 
-      <!-- INPUT -->
+      <!-- 2. Input -->
       <div class="space-y-4">
         <!-- SNIPPET -->
         <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
@@ -331,7 +348,7 @@
         </div>
       </div>
 
-      <!-- TOGGLE -->
+      <!-- 3. Toggle -->
       <div class="space-y-4">
         <!-- SNIPPET -->
         <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
@@ -368,7 +385,7 @@
         </div>
       </div>
 
-      <!-- LOOP -->
+      <!-- 4. Loop -->
       <div class="space-y-4">
         <!-- SNIPPET -->
         <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
@@ -405,7 +422,7 @@
         </div>
       </div>
 
-      <!-- COMPUTED + WATCH -->
+      <!-- 5. Computed -->
       <div class="space-y-4">
         <!-- SNIPPET -->
         <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
@@ -450,7 +467,7 @@
         </div>
       </div>
 
-      <!-- HTTP -->
+      <!-- 6. HTTP -->
       <div class="space-y-4">
         <!-- SNIPPET -->
         <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
@@ -492,78 +509,16 @@
       </div>
     </section>
 
-    <!-- WHAT IT CAN DO / FEATURES -->
-    <section id="features" class="space-y-8">
-      <div>
-        <h2 class="text-2xl font-semibold tracking-tight">What extra.js can do</h2>
-        <p class="text-sm text-slate-300 mt-1 max-w-2xl">
-          You can stop here and already be productive. When you need more, these are the main building blocks.
-        </p>
-      </div>
-
-      <div class="grid gap-6 lg:grid-cols-3 text-sm">
-        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
-          <h3 class="font-semibold text-slate-100">Core concepts</h3>
-          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
-            <li><code>x.store</code> – reactive global state.</li>
-            <li><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> – text &amp; attribute bindings.</li>
-            <li><code>x-js</code> – run inline JS on mount.</li>
-            <li><code>x.computed</code> – derived values.</li>
-            <li><code>x.watch</code> – listen to changes.</li>
-            <li>State persisted via <code>sessionStorage</code>.</li>
-          </ul>
-        </div>
-
-        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
-          <h3 class="font-semibold text-slate-100">HTML directives</h3>
-          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
-            <li><code>x-if</code> / <code>x-else</code> – conditional blocks.</li>
-            <li><code>x-show</code> – show/hide with <code>hidden</code>.</li>
-            <li><code>x-bind:attr</code> – bind attributes &amp; props.</li>
-            <li><code>x-on:event</code> – click/input/etc handlers.</li>
-            <li><code>x-for</code> – simple loops.</li>
-          </ul>
-        </div>
-
-        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
-          <h3 class="font-semibold text-slate-100">AJAX (x-http)</h3>
-          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
-            <li><code>x-http</code> – send a request &amp; swap HTML.</li>
-            <li><code>x-method</code> – override GET/POST/etc.</li>
-            <li><code>x-target</code> / <code>x-target-error</code> – where to put success / error.</li>
-            <li><code>x-swap</code> – inner, append, prepend, before, after, outer.</li>
-            <li><code>x-trigger</code> – when to fire (click, submit, load, every:ms…).</li>
-            <li><code>x-indicator</code> – show spinners while loading.</li>
-            <li><code>x-headers</code>, <code>x-form</code>, <code>x-json</code>, <code>x-confirm</code> – control
-              headers, body and confirmation.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-xs sm:text-sm text-slate-300">
-        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
-          No bundler, no compile step, no virtual DOM.
-        </div>
-        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
-          Works in single-file demos or larger apps.
-        </div>
-        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
-          “Just HTML” mental model — easy to onboard teammates.
-        </div>
-      </div>
-    </section>
-
-    <!-- API SUMMARY + CHEATSHEET -->
+    <!-- API -->
     <section id="api" class="space-y-6">
       <div>
-        <h2 class="text-2xl font-semibold tracking-tight">API & cheatsheet</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">API summary</h2>
         <p class="text-sm text-slate-300 mt-1 max-w-2xl">
-          Most apps only need a few primitives. Everything lives on <code>x</code> (and the
-          <code>extra</code> alias). You can skim this later when you’re building more complex pages.
+          Most apps only need a handful of primitives. Everything lives on
+          <code>x</code> (and the <code>extra</code> alias).
         </p>
       </div>
 
-      <!-- Short API cards -->
       <div class="grid gap-6 lg:grid-cols-2 text-sm">
         <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-2">
           <h3 class="font-semibold text-slate-100 mb-1">Store &amp; reactivity</h3>
@@ -579,31 +534,28 @@
         <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-2">
           <h3 class="font-semibold text-slate-100 mb-1">Templating &amp; directives</h3>
           <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
-            <li><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> – render store/computed values in text/attributes.
-            </li>
+            <li><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> – render store or computed values in
+              text/attributes.</li>
             <li><code>x-js="code"</code> – run inline JS when an element appears.</li>
-            <li><code>x-if</code>, <code>x-else</code>, <code>x-show</code>, <code>x-bind</code>,
-              <code>x-on</code>, <code>x-for</code>.
-            </li>
+            <li><code>x-if</code> / <code>x-else</code> – conditional insertion.</li>
+            <li><code>x-show</code> – toggle <code>hidden</code> without removing the element.</li>
+            <li><code>x-bind:attr</code> – bind a property/attribute to a store path.</li>
+            <li><code>x-on:event</code> – attach event handlers with full JS (sync/async).</li>
+            <li><code>x-for="item in items"</code> – simple loops with local variables.</li>
           </ul>
         </div>
       </div>
 
-      <!-- Collapsible full cheatsheet -->
-      <details class="bg-slate-900 rounded-lg border border-slate-800 text-xs sm:text-sm text-slate-300">
-        <summary
-          class="cursor-pointer select-none px-4 py-3 flex items-center justify-between gap-2 hover:bg-slate-900/80">
+      <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-xs sm:text-sm text-slate-300">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
-            <p class="font-semibold text-slate-100">Open full API cheatsheet</p>
-            <p class="text-[0.7rem] text-slate-400">
-              All directives, HTTP helpers and helpers on one page.
-            </p>
+            <h3 class="font-semibold text-slate-100">Reference sheet</h3>
+            <p class="text-xs text-slate-400">Everything ExtraJS can do, grouped by topic.</p>
           </div>
           <span class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Cheatsheet</span>
-        </summary>
+        </div>
 
-        <div class="border-t border-slate-800 p-4 space-y-4">
-          <!-- Store and reactivity table -->
+        <div class="space-y-4">
           <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
             <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">Store and reactivity</h4>
             <div class="overflow-x-auto">
@@ -661,7 +613,6 @@
             </div>
           </div>
 
-          <!-- HTML directives table -->
           <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
             <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">HTML directives</h4>
             <div class="overflow-x-auto">
@@ -709,7 +660,6 @@
             </div>
           </div>
 
-          <!-- AJAX table -->
           <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
             <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">AJAX (x-http)</h4>
             <div class="overflow-x-auto">
@@ -782,7 +732,6 @@
             </div>
           </div>
 
-          <!-- Runtime helpers -->
           <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
             <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">Runtime helpers</h4>
             <div class="overflow-x-auto">
@@ -809,23 +758,38 @@
               </table>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Config note -->
-          <div class="bg-slate-950/60 rounded-lg border border-slate-800 p-3 space-y-2">
-            <h3 class="font-semibold text-slate-100">Config</h3>
-            <p>
-              extra.js exposes a reserved configuration object at <code>x.config</code> so future options can live in
-              one place. Right now there are no official flags — you can safely use it as a namespaced object for your
-              own settings.
-            </p>
-            <p>Example:</p>
-            <pre
-              class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 bg-slate-950 border border-slate-800 rounded-md"><code class="language-js">// Custom, app-level flags
+      <!-- Config section -->
+      <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-xs sm:text-sm text-slate-300 space-y-2">
+        <h3 class="font-semibold text-slate-100">Config</h3>
+        <p>
+          extra.js exposes a reserved configuration object at <code>x.config</code> so future options can live in
+          one place. At the moment there are no official flags — it is safe to treat it as a simple namespaced
+          object for your own settings.
+        </p>
+        <p>Example (user-defined only):</p>
+        <div class="bg-[#020617] border border-slate-800 rounded-md">
+          <div class="relative flex items-center px-4 py-2 bg-[#020617] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-[0.7rem] uppercase tracking-wide text-slate-400 font-semibold">CONFIG</span>
+          </div>
+          <pre class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3"><code class="language-js">// Reserved for future built-in options
+// You can store your own app-level flags here.
 x.config.appName = "My extra.js demo";
 x.config.debug = true;</code></pre>
-          </div>
         </div>
-      </details>
+        <p class="text-slate-400">
+          When official config options are added, they will appear under <code>x.config</code> and be documented in
+          the README.
+        </p>
+      </div>
 
       <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-xs sm:text-sm text-slate-300">
         <p class="mb-1">
