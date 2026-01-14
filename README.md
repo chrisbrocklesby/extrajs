@@ -354,9 +354,9 @@ This re-scans `((...))`, directives, and `x-js` on new nodes.
 | `x-on:event="js"`            | Add event listener                  |
 | `x-for="item in list"`       | Loop & stamp HTML                   |
 | `x-load="/url"`              | Load HTML into the DOM              |
-| `x-load:on="init|click|..."` | When to run the load                |
+| `x-load:on="init/click/..."` | When to run the load                |
 | `x-load:target="#id"`        | Where to swap the response          |
-| `x-load:swap="inner|..."`    | How response is applied             |
+| `x-load:swap="inner/..."`    | How response is applied             |
 
 ---
 
