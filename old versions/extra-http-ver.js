@@ -935,6 +935,543 @@
   // =====================
   // extra.js: init + export
   // =====================
+
+  // =====================
+  // x-http (ExtraJS HTTP)
+  // =====================
+  const X_HTTP_BOUND = Symbol("xHttpBound");
+  const X_HTTP_POLL_ID = Symbol("xHttpPollId");
+
+  const xHttpJsonCache = new Map();
+
+  function xHttpParseJsonLiteralCached(str, context) {
+    if (!str) return null;
+    const key = str;
+    if (xHttpJsonCache.has(key)) return xHttpJsonCache.get(key);
+    let parsed = null;
+    try {
+      parsed = JSON.parse(str);
+      if (!parsed || typeof parsed !== "object") {
+        console.warn("ExtraJS x-http: " + context + " JSON must be an object literal:", str);
+        parsed = null;
+      }
+    } catch (err) {
+      console.error("ExtraJS x-http: failed to parse " + context + " JSON:", err, "value:", str);
+      parsed = null;
+    }
+    xHttpJsonCache.set(key, parsed);
+    return parsed;
+  }
+
+  function xHttpResolveMap(map, el) {
+    const result = {};
+    if (!map || typeof map !== "object") return result;
+    for (const key in map) {
+      if (!Object.prototype.hasOwnProperty.call(map, key)) continue;
+      const value = map[key];
+
+      if (typeof value === "string" && (value[0] === "#" || value[0] === "[")) {
+        const sel = value;
+        const target = document.querySelector(sel);
+        if (!target) {
+          console.warn("ExtraJS x-http: selector '" + sel + "' not found");
+          result[key] = null;
+          continue;
+        }
+
+        if (
+          target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          target instanceof HTMLSelectElement
+        ) {
+          if (
+            target instanceof HTMLInputElement &&
+            (target.type === "checkbox" || target.type === "radio")
+          ) {
+            result[key] = !!target.checked;
+          } else {
+            result[key] = target.value;
+          }
+        } else {
+          result[key] = target.textContent;
+        }
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  function xHttpFindNearestForm(el) {
+    if (!el) return null;
+    return el.closest ? el.closest("form") : null;
+  }
+
+  function xHttpBuildParamsFromForm(form) {
+    const params = new URLSearchParams();
+    if (!form) return params;
+    const fd = new FormData(form);
+    for (const [key, value] of fd.entries()) {
+      params.append(key, value);
+    }
+    return params;
+  }
+
+  function xHttpBuildJsonFromForm(form) {
+    const obj = {};
+    if (!form) return obj;
+    const fd = new FormData(form);
+    for (const [key, value] of fd.entries()) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const existing = obj[key];
+        if (Array.isArray(existing)) {
+          existing.push(value);
+        } else {
+          obj[key] = [existing, value];
+        }
+      } else {
+        obj[key] = value;
+      }
+    }
+    return obj;
+  }
+
+  function xHttpAppendQuery(url, params) {
+    const qs = params.toString();
+    if (!qs) return url;
+    return url + (url.indexOf("?") === -1 ? "?" : "&") + qs;
+  }
+
+  function xHttpResolveTarget(el, selector) {
+    if (!selector) return el;
+    let target = null;
+    try {
+      target = document.querySelector(selector);
+    } catch (err) {
+      console.error("ExtraJS x-http: invalid x-target selector:", selector, "on element:", el, err);
+    }
+    if (!target) {
+      console.warn("ExtraJS x-http: x-target selector '" + selector + "' not found, using element itself.");
+      return el;
+    }
+    return target;
+  }
+
+  function xHttpResolveIndicator(selector) {
+    if (!selector) return null;
+    let el = null;
+    try {
+      el = document.querySelector(selector);
+    } catch (err) {
+      console.error("ExtraJS x-http: invalid x-indicator selector:", selector, err);
+    }
+    return el || null;
+  }
+
+  function xHttpShowIndicator(indEl) {
+    if (!indEl) return;
+    const wasHidden = indEl.hasAttribute("hidden");
+    indEl.dataset.xIndicatorWasHidden = wasHidden ? "1" : "0";
+    if (wasHidden) indEl.removeAttribute("hidden");
+  }
+
+  function xHttpHideIndicator(indEl) {
+    if (!indEl) return;
+    const wasHidden = indEl.dataset.xIndicatorWasHidden === "1";
+    if (wasHidden) {
+      indEl.setAttribute("hidden", "");
+    }
+    delete indEl.dataset.xIndicatorWasHidden;
+  }
+
+  function xHttpParseTrigger(el) {
+    const raw = (el.getAttribute("x-trigger") || "").trim();
+    if (!raw) {
+      if (el.tagName === "FORM") {
+        return { type: "event", event: "submit", delay: 0 };
+      }
+      return { type: "event", event: "click", delay: 0 };
+    }
+
+    if (raw === "load") {
+      return { type: "load", delay: 0 };
+    }
+
+    if (raw.startsWith("load:")) {
+      const ms = parseInt(raw.slice(5), 10);
+      return { type: "load", delay: isNaN(ms) ? 0 : ms };
+    }
+
+    if (raw.startsWith("every:")) {
+      const ms = parseInt(raw.slice(6), 10);
+      return { type: "poll", interval: isNaN(ms) ? 1000 : ms };
+    }
+
+    const parts = raw.split(":");
+    const ev = parts[0];
+    if (parts.length > 1) {
+      const ms = parseInt(parts[1], 10);
+      return { type: "event", event: ev, delay: isNaN(ms) ? 0 : ms };
+    }
+
+    return { type: "event", event: raw, delay: 0 };
+  }
+
+  function xHttpApplySwap(target, html, mode) {
+    if (!target) return;
+
+    const swap = (mode || "inner").toLowerCase();
+    let applyRoot = target;
+
+    switch (swap) {
+      case "append":
+        target.insertAdjacentHTML("beforeend", html);
+        break;
+      case "prepend":
+        target.insertAdjacentHTML("afterbegin", html);
+        break;
+      case "before":
+        target.insertAdjacentHTML("beforebegin", html);
+        applyRoot = target.parentNode || target;
+        break;
+      case "after":
+        target.insertAdjacentHTML("afterend", html);
+        applyRoot = target.parentNode || target;
+        break;
+      case "outer":
+        {
+          const parent = target.parentNode;
+          target.outerHTML = html;
+          applyRoot = parent || null;
+        }
+        break;
+      case "inner":
+      default:
+        target.innerHTML = html;
+        break;
+    }
+
+    try {
+      if (typeof xApply === "function") {
+        if (applyRoot) {
+          xApply(applyRoot);
+        } else if (target.parentNode) {
+          xApply(target.parentNode);
+        } else {
+          xApply(document.body || document);
+        }
+      }
+    } catch (err) {
+      console.error("ExtraJS x-http: error running x.apply after swap:", err);
+    }
+  }
+
+  async function xHttpSendRequest(el) {
+    if (!(el instanceof Element)) return;
+
+    const cfg = el._xHttpConfig || {};
+    const urlAttr = cfg.url || el.getAttribute("x-http");
+    if (!urlAttr) return;
+
+    const confirmMsg = el.getAttribute("x-confirm");
+    if (confirmMsg != null) {
+      const ok = window.confirm(confirmMsg);
+      if (!ok) return;
+    }
+
+    const method = (cfg.method || el.getAttribute("x-method") || el.getAttribute("method") || "GET").toUpperCase();
+    const swapMode = (cfg.swap || el.getAttribute("x-swap") || "inner").toLowerCase();
+
+    const successTarget =
+      cfg.successTarget || xHttpResolveTarget(el, el.getAttribute("x-target"));
+    const errorTarget =
+      cfg.errorTarget ||
+      (el.hasAttribute("x-target-error")
+        ? xHttpResolveTarget(el, el.getAttribute("x-target-error"))
+        : successTarget);
+
+    const indicatorEl =
+      cfg.indicatorEl || xHttpResolveIndicator(el.getAttribute("x-indicator"));
+    const hasJson = el.hasAttribute("x-json");
+    const hasForm = el.hasAttribute("x-form");
+
+    if (hasJson && hasForm) {
+      console.error("ExtraJS x-http: cannot use both x-json and x-form on the same element.", el);
+      return;
+    }
+
+    let url = urlAttr;
+    let body = null;
+    let contentType = null;
+
+    const isGetLike = method === "GET" || method === "HEAD";
+
+    try {
+      xHttpShowIndicator(indicatorEl);
+
+      if (hasJson) {
+        const rawJson = el.getAttribute("x-json");
+        let payload = {};
+
+        if (!rawJson || !rawJson.trim()) {
+          const form = xHttpFindNearestForm(el);
+          payload = xHttpBuildJsonFromForm(form);
+        } else {
+          const map = xHttpParseJsonLiteralCached(rawJson, "x-json");
+          payload = xHttpResolveMap(map || {}, el);
+        }
+
+        body = JSON.stringify(payload);
+        contentType = "application/json";
+      } else if (hasForm) {
+        const rawForm = el.getAttribute("x-form");
+        let params;
+        if (!rawForm || !rawForm.trim()) {
+          const form = xHttpFindNearestForm(el);
+          params = xHttpBuildParamsFromForm(form);
+        } else {
+          const map = xHttpParseJsonLiteralCached(rawForm, "x-form");
+          const payload = xHttpResolveMap(map || {}, el);
+          params = new URLSearchParams();
+          for (const key in payload) {
+            if (!Object.prototype.hasOwnProperty.call(payload, key)) continue;
+            const v = payload[key];
+            params.append(key, v == null ? "" : String(v));
+          }
+        }
+
+        if (isGetLike) {
+          url = xHttpAppendQuery(url, params);
+        } else {
+          body = params.toString();
+          contentType = "application/x-www-form-urlencoded";
+        }
+      } else {
+        const form = xHttpFindNearestForm(el);
+        if (form) {
+          const params = xHttpBuildParamsFromForm(form);
+          if (isGetLike) {
+            url = xHttpAppendQuery(url, params);
+          } else {
+            body = params.toString();
+            contentType = "application/x-www-form-urlencoded";
+          }
+        } else {
+          // no body; GET with no body / or explicit method with empty body
+        }
+      }
+
+      const headers = new Headers();
+
+      if (contentType) {
+        headers.set("Content-Type", contentType);
+      }
+
+      const rawHeaders = el.getAttribute("x-headers");
+      if (rawHeaders && rawHeaders.trim()) {
+        const headerMap = xHttpParseJsonLiteralCached(rawHeaders, "x-headers");
+        if (headerMap && typeof headerMap === "object") {
+          for (const key in headerMap) {
+            if (!Object.prototype.hasOwnProperty.call(headerMap, key)) continue;
+            const v = headerMap[key];
+            if (v != null) {
+              headers.set(key, String(v));
+            }
+          }
+        }
+      }
+
+      const opts = {
+        method: method,
+        headers: headers,
+      };
+
+      if (!isGetLike && body != null) {
+        opts.body = body;
+      }
+
+      let response;
+      try {
+        response = await fetch(url, opts);
+      } catch (err) {
+        // Network error
+        const msg = "Error: NETWORK";
+        xHttpApplySwap(errorTarget, msg, swapMode);
+        console.error("HTTP NETWORK " + method + " " + url, err);
+        return;
+      }
+
+      const status = response.status;
+      const contentTypeResp = response.headers.get("Content-Type") || "";
+      const isJsonResp = contentTypeResp.toLowerCase().indexOf("application/json") !== -1;
+
+      if (status >= 200 && status < 400) {
+        // Success: always treat as text/HTML
+        const text = await response.text();
+        xHttpApplySwap(successTarget, text, swapMode);
+      } else {
+        // Error handling
+        if (isJsonResp) {
+          let data = null;
+          try {
+            data = await response.json();
+          } catch (err) {
+            // ignore JSON parse error, still show generic message
+          }
+          const msg = "Error: " + status;
+          xHttpApplySwap(errorTarget, msg, swapMode);
+
+          console.error(
+            "Error: JSON response not supported by x-http; use x-js for structured errors."
+          );
+          console.error("HTTP " + status + " " + method + " " + url);
+          if (data !== null) {
+            console.error("Response JSON:", data);
+          }
+        } else {
+          const text = await response.text();
+          xHttpApplySwap(errorTarget, text, swapMode);
+          console.error("HTTP " + status + " " + method + " " + url);
+        }
+      }
+    } finally {
+      xHttpHideIndicator(indicatorEl);
+    }
+  }
+
+  function xHttpBindElement(el) {
+    if (!(el instanceof Element)) return;
+    if (!el.hasAttribute("x-http")) return;
+    if (el[X_HTTP_BOUND]) return;
+
+    const url = el.getAttribute("x-http");
+    if (!url) {
+      console.warn("ExtraJS x-http: x-http attribute is empty on element:", el);
+      return;
+    }
+
+
+    const method = (el.getAttribute("x-method") || el.getAttribute("method") || "GET").toUpperCase();
+    const swapMode = (el.getAttribute("x-swap") || "inner").toLowerCase();
+    const targetSelector = el.getAttribute("x-target");
+    const errorTargetSelector = el.getAttribute("x-target-error");
+    const indicatorSelector = el.getAttribute("x-indicator");
+
+    const successTarget = xHttpResolveTarget(el, targetSelector);
+    const errorTarget = errorTargetSelector
+      ? xHttpResolveTarget(el, errorTargetSelector)
+      : successTarget;
+    const indicatorEl = xHttpResolveIndicator(indicatorSelector);
+
+    el._xHttpConfig = {
+      url: url,
+      method: method,
+      swap: swapMode,
+      successTarget: successTarget,
+      errorTarget: errorTarget,
+      indicatorEl: indicatorEl,
+    };
+    const trigger = xHttpParseTrigger(el);
+    const handler = function (evt) {
+      if (evt && trigger && trigger.event === "submit") {
+        evt.preventDefault();
+      }
+      xHttpSendRequest(el);
+    };
+
+    if (trigger.type === "poll") {
+      const interval = trigger.interval || 1000;
+      const id = setInterval(function () {
+        xHttpSendRequest(el);
+      }, interval);
+      el[X_HTTP_POLL_ID] = id;
+    } else if (trigger.type === "load") {
+      const delay = trigger.delay || 0;
+      if (delay > 0) {
+        setTimeout(function () {
+          xHttpSendRequest(el);
+        }, delay);
+      } else {
+        // queue microtask to run after current stack
+        Promise.resolve().then(function () {
+          xHttpSendRequest(el);
+        });
+      }
+    } else if (trigger.type === "event") {
+      if (trigger.delay && trigger.delay > 0) {
+        // debounced event
+        let timeoutId = null;
+        const debounced = function (evt) {
+          if (evt && trigger && trigger.event === "submit") {
+            evt.preventDefault();
+          }
+          const delay = trigger.delay || 0;
+          if (timeoutId != null) {
+            clearTimeout(timeoutId);
+          }
+          timeoutId = setTimeout(function () {
+            xHttpSendRequest(el);
+          }, delay);
+        };
+        el.addEventListener(trigger.event, debounced);
+      } else {
+        el.addEventListener(trigger.event, handler);
+      }
+    }
+
+    el[X_HTTP_BOUND] = true;
+  }
+
+  function bindXHttpIn(root) {
+    const base = root || (document.body || document);
+    if (!base) return;
+
+    if (base instanceof Element && base.hasAttribute("x-http")) {
+      xHttpBindElement(base);
+    }
+
+    if (base.querySelectorAll) {
+      const list = base.querySelectorAll("[x-http]");
+      for (let i = 0; i < list.length; i++) {
+        xHttpBindElement(list[i]);
+      }
+    }
+  }
+
+  function cleanupXHttpPolling(root) {
+    if (!root) return;
+    const base = root;
+    if (base[X_HTTP_POLL_ID]) {
+      clearInterval(base[X_HTTP_POLL_ID]);
+      delete base[X_HTTP_POLL_ID];
+    }
+    if (base.querySelectorAll) {
+      const list = base.querySelectorAll("[x-http]");
+      for (let i = 0; i < list.length; i++) {
+        const el = list[i];
+        if (el[X_HTTP_POLL_ID]) {
+          clearInterval(el[X_HTTP_POLL_ID]);
+          delete el[X_HTTP_POLL_ID];
+        }
+      }
+    }
+  }
+
+  // x.apply: x-js + x-http
+  function xApply(root) {
+    const base =
+      typeof root === "string"
+        ? document.getElementById(root) ||
+          document.querySelector(root) ||
+          (document.body || document)
+        : root || (document.body || document);
+
+    if (!base) return;
+
+    runXjsAttributes(base);
+    bindXHttpIn(base);
+  }
+
   function initXjsRunner() {
     // initial run
     try {
@@ -957,15 +1494,25 @@
           }
 
           if (m.type === "childList") {
-            for (const n of m.addedNodes) {
-              if (n.nodeType !== 1) continue;
-              // new subtree: templating + directives + x-js
-              try {
-                scanTemplatesIn(n);
-                processDirectives(n);
-                runXjsAttributes(n);
-              } catch (err) {
-                console.error("extra.js: error while processing added nodes:", err);
+            if (m.removedNodes && m.removedNodes.length) {
+              for (const n of m.removedNodes) {
+                if (n.nodeType !== 1) continue;
+                cleanupXHttpPolling(n);
+              }
+            }
+
+            if (m.addedNodes && m.addedNodes.length) {
+              for (const n of m.addedNodes) {
+                if (n.nodeType !== 1) continue;
+                // new subtree: templating + directives + x-js + x-http
+                try {
+                  scanTemplatesIn(n);
+                  processDirectives(n);
+                  runXjsAttributes(n);
+                  bindXHttpIn(n);
+                } catch (err) {
+                  console.error("extra.js: error while processing added nodes:", err);
+                }
               }
             }
           }
@@ -988,6 +1535,7 @@
       initialScanTemplates();                 // ((...)) outside x-for
       processDirectives(document.body || document); // x-if/x-show/x-bind/x-on/x-for
       initXjsRunner();                        // x-js
+      bindXHttpIn(document.body || document); // x-http
     } catch (err) {
       console.error("extra.js: init failed:", err);
     }
@@ -1005,7 +1553,7 @@
     store: xstore,
     watch: xwatch,
     computed: xcomputed,
-    apply: runXjsAttributes,
+    apply: xApply,
   };
 
   // Single official namespace

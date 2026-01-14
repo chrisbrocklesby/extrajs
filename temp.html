@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>extra.js – Tiny HTML-first reactivity & AJAX</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());
+  </script>
+
+  <!-- extra.js (local dev) -->
+  <script src="extra.js"></script>
+</head>
+
+<body class="bg-slate-950 text-slate-100 antialiased">
+
+  <!-- Top nav -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2">
+        <span class="text-lg font-semibold tracking-tight">
+          <img src="images/extra-js-logo.png" alt="extra.js" class="h-10 sm:h-12 w-auto inline-block" />
+        </span>
+      </a>
+      <nav class="flex items-center gap-3 text-xs sm:text-sm">
+        <a href="#get-started" class="text-slate-300 hover:text-white">Get started</a>
+        <a href="#examples" class="text-slate-300 hover:text-white">Examples</a>
+        <a href="#features" class="text-slate-300 hover:text-white hidden sm:inline">What it can do</a>
+        <a href="#api" class="text-slate-300 hover:text-white hidden sm:inline">API</a>
+        <a href="https://github.com/chrisbrocklesby/extrajs"
+          class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-[0.7rem] sm:text-xs font-medium hover:border-sky-500 hover:text-white">
+          <span>GitHub</span>
+          <span class="text-slate-400">→</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 space-y-16">
+
+    <!-- HERO -->
+    <section id="hero"
+      class="max-w-6xl mx-auto px-4 py-10 lg:py-16 grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-center">
+      <!-- Left: copy -->
+      <div class="space-y-6">
+        <p class="text-[0.65rem] font-semibold tracking-[0.26em] uppercase text-sky-400">
+          NO BUILD · HTML-FIRST · REACTIVE STATE
+        </p>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">
+          HTML-first interactivity with state, reactivity, and AJAX — no build required
+        </h1>
+
+        <p class="text-slate-300 text-sm sm:text-base max-w-xl">
+          Drop a single script into any HTML page and get a tiny reactive store, simple
+          template bindings with <code class="text-sky-300">&#40;&#8203;&#40;path&#41;&#8203;&#41;</code>,
+          and HTMX-style HTML swaps using <code class="text-sky-300">x-http</code> — all
+          without a bundler or virtual DOM.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <a href="#get-started"
+            class="inline-flex items-center rounded-md bg-sky-500 px-4 py-2 font-medium text-slate-950 hover:bg-sky-400">
+            Get started in 30 seconds
+          </a>
+          <a href="#examples"
+            class="inline-flex items-center rounded-md border border-slate-700 px-4 py-2 font-medium text-slate-100 hover:border-sky-500">
+            See live examples
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Right: code + live demo -->
+      <div class="space-y-4">
+        <!-- Code box -->
+        <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">
+              COUNTER
+            </span>
+          </div>
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/div&gt;
+&lt;button x-on:click="x.store.count++"&gt;+&lt;/button&gt;
+&lt;button x-on:click="x.store.count--"&gt;-&lt;/button&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- Live demo -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm">
+          <p class="mb-3 text-xs uppercase tracking-wide text-slate-400 font-semibold">
+            Live: counter
+          </p>
+          <div class="inline-flex flex-wrap items-center gap-3">
+            <span class="px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700">
+              Count: <span class="font-semibold">((count))</span>
+            </span>
+            <button class="bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-medium px-3 py-1.5 rounded-md"
+              x-on:click="x.store.count++">
+              +
+            </button>
+            <button class="bg-rose-500 hover:bg-rose-400 text-slate-950 text-xs font-medium px-3 py-1.5 rounded-md"
+              x-on:click="x.store.count--">
+              –
+            </button>
+          </div>
+          <p class="mt-3 text-xs text-slate-400">
+            In a script tag add:
+            <code>x.store.count = 0</code>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK START / INSTALL -->
+    <section id="get-started" class="space-y-8">
+      <div class="space-y-2">
+        <h2 class="text-2xl font-semibold tracking-tight">Quick start</h2>
+        <p class="text-sm text-slate-300 max-w-2xl">
+          Three steps: include the script, set some state, and bind it in your HTML.
+        </p>
+      </div>
+
+      <div class="grid gap-6 text-sm">
+        <!-- Step 1 -->
+        <div class="space-y-3">
+          <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 1 · Load extra.js</p>
+          <p class="text-slate-300">
+            Use from a CDN or install locally. No tooling required.
+          </p>
+
+
+          <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
+            <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+              <span
+                class="absolute left-1/2 -translate-x-1/2 text-[0.65rem] uppercase tracking-wide text-slate-400 font-semibold">CDN</span>
+            </div>
+
+            <div class="bg-[#020617]">
+              <pre
+                class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 leading-relaxed"><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/gh/chrisbrocklesby/extrajs@latest/extra.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="space-y-3">
+          <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 2 · Define some state</p>
+          <p class="text-slate-300">
+            Use <code>x.store</code> for global reactive state. It’s just a plain object that survives refreshes in
+            <code>sessionStorage</code>.
+          </p>
+          <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
+            <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+              <span
+                class="absolute left-1/2 -translate-x-1/2 text-[0.65rem] uppercase tracking-wide text-slate-400 font-semibold">STATE</span>
+            </div>
+            <div class="bg-[#020617]">
+              <pre class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 leading-relaxed"><code class="language-html">&lt;script&gt;
+  x.store.name = "extra.js"
+  x.store.count = 0
+&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="space-y-3">
+          <p class="text-[0.6rem] font-semibold tracking-[0.26em] uppercase text-sky-400">Step 3 · Bind in HTML</p>
+          <p class="text-slate-300">
+            Use <code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> to read from the store and simple
+            <code>x-on</code> handlers to update it.
+          </p>
+          <div class="bg-[#0f172a] w-full rounded-lg overflow-hidden shadow-lg border border-slate-800">
+            <div class="relative flex items-center px-4 py-2 bg-[#1e293b] border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+              <span
+                class="absolute left-1/2 -translate-x-1/2 text-[0.65rem] uppercase tracking-wide text-slate-400 font-semibold">HELLO
+                WORLD</span>
+            </div>
+            <div class="bg-[#020617]">
+              <pre class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 leading-relaxed"><code class="language-html">&lt;h1&gt;Hello &#40;&#8203;&#40;name&#41;&#8203;&#41;&lt;/h1&gt;
+&lt;p&gt;Clicks: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/p&gt;
+
+&lt;button x-on:click="x.store.count++"&gt;
+  Click me
+&lt;/button&gt;</code></pre>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400">
+            That’s enough to build simple dashboards, admin panels, marketing pages with reactive “islands”, and more.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE EXAMPLES -->
+    <section id="examples" class="space-y-10">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">Live examples</h2>
+        <p class="text-sm text-slate-300 mt-1 max-w-2xl">
+          These are small, copy-paste friendly examples that show the main pieces: state, inputs, toggles, loops,
+          computed values, and AJAX.
+        </p>
+      </div>
+
+      <!-- State + templating -->
+      <div class="space-y-4">
+        <div class="space-y-3">
+          <h3 class="text-lg font-semibold">State &amp; templating</h3>
+          <p class="text-xs text-slate-400">
+            A single store and <code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> bindings.
+          </p>
+
+          <!-- SNIPPET -->
+          <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
+            <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+              <span
+                class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">STORE
+                + TEMPLATE</span>
+            </div>
+            <div class="bg-[#020617]">
+              <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;h2&gt;Hello &#40;&#8203;&#40;name&#41;&#8203;&#41;&lt;/h2&gt;
+&lt;p&gt;You clicked &#40;&#8203;&#40;count&#41;&#8203;&#41; times.&lt;/p&gt;
+
+&lt;script&gt;
+  x.store.name = "Chris"
+  x.store.count = 0
+&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm space-y-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">LIVE: STORE + TEMPLATE</p>
+          <h2 class="text-xl font-semibold">Hello ((name))</h2>
+          <p class="text-sm text-slate-200">
+            You clicked <span class="font-semibold">((count))</span> times.
+          </p>
+          <button class="mt-3 bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-medium px-3 py-1.5 rounded-md"
+            x-on:click="x.store.count++">
+            Click me
+          </button>
+        </div>
+      </div>
+
+      <!-- INPUT -->
+      <div class="space-y-4">
+        <!-- SNIPPET -->
+        <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">INPUT
+              BINDING</span>
+          </div>
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Name: &#40;&#8203;&#40;name&#41;&#8203;&#41;&lt;/div&gt;
+&lt;input type="text"
+       x-on:input="x.store.name = el.value"&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- LIVE -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm space-y-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">LIVE: INPUT BINDING</p>
+          <div class="mb-2 text-sm text-slate-200">
+            Name: <span class="font-semibold">((name))</span>
+          </div>
+          <input type="text" class="border border-slate-700 bg-slate-950 rounded px-3 py-1 w-full text-sm"
+            placeholder="Type your name" x-on:input="x.store.name = el.value" />
+        </div>
+      </div>
+
+      <!-- TOGGLE -->
+      <div class="space-y-4">
+        <!-- SNIPPET -->
+        <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">X-SHOW</span>
+          </div>
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div x-show="menuOpen"&gt;
+  👋 Now you see me...
+&lt;/div&gt;
+
+&lt;button x-on:click="x.store.menuOpen = !x.store.menuOpen"&gt;
+  Toggle
+&lt;/button&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- LIVE -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm space-y-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">LIVE: X-SHOW</p>
+          <button class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-medium px-3 py-1.5 rounded-md"
+            x-on:click="x.store.menuOpen = !x.store.menuOpen">
+            Toggle
+          </button>
+          <div x-show="menuOpen" class="mt-3">
+            👋 Now you see me...
+          </div>
+        </div>
+      </div>
+
+      <!-- LOOP -->
+      <div class="space-y-4">
+        <!-- SNIPPET -->
+        <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">X-FOR
+              PRODUCTS</span>
+          </div>
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;ul x-for="product in products"&gt;
+  &lt;li&gt;&#40;&#8203;&#40;product.name&#41;&#8203;&#41;: $&#40;&#8203;&#40;product.price&#41;&#8203;&#41;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;script&gt;
+  x.store.products = [
+    { name: "Product 1", price: 29.99 },
+    { name: "Product 2", price: 49.99 },
+  ]
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- LIVE -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm">
+          <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold mb-2">LIVE: X-FOR PRODUCTS</p>
+          <ul x-for="product in products" class="list-disc list-inside space-y-1">
+            <li>((product.name)): $((product.price))</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- COMPUTED + WATCH -->
+      <div class="space-y-4">
+        <!-- SNIPPET -->
+        <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">COMPUTED
+              + WATCH</span>
+          </div>
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;div&gt;Count: &#40;&#8203;&#40;count&#41;&#8203;&#41;&lt;/div&gt;
+&lt;div&gt;Double: &#40;&#8203;&#40;countDouble&#41;&#8203;&#41;&lt;/div&gt;
+
+&lt;script&gt;
+  x.store.count = 0
+
+  x.computed("countDouble", () =&gt; x.store.count * 2)
+
+  x.watch("count", (nv, ov) =&gt; {
+    console.log("count changed:", ov, "→", nv)
+  })
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- LIVE -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm space-y-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">LIVE: COMPUTED + WATCH</p>
+          <p>Count: <span class="font-semibold">((count))</span></p>
+          <p>Double: <span class="font-semibold">((countDouble))</span></p>
+          <button class="mt-2 bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-medium px-3 py-1.5 rounded-md"
+            x-on:click="x.store.count++">
+            Increment
+          </button>
+          <p class="text-xs text-slate-400 mt-2">
+            Open your console to see <code>x.watch</code> logs.
+          </p>
+        </div>
+      </div>
+
+      <!-- HTTP -->
+      <div class="space-y-4">
+        <!-- SNIPPET -->
+        <div class="w-full bg-[#0f172a] rounded-lg overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative flex items-center px-4 py-3 bg-[#1e293b] border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span
+              class="absolute left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-slate-400 font-semibold">X-HTTP</span>
+          </div>
+          <div class="bg-[#020617]">
+            <pre class="font-mono text-xs sm:text-sm overflow-x-auto p-4 leading-relaxed"><code class="language-html">&lt;button
+  x-http="remote.html"
+  x-target="#http-demo-output"
+  x-indicator="#http-demo-loading"&gt;
+  Load Remote Content (AJAX)
+&lt;/button&gt;
+
+&lt;span id="http-demo-loading" hidden&gt;Loading...&lt;/span&gt;
+&lt;pre id="http-demo-output"&gt;&lt;/pre&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- LIVE -->
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-sm space-y-3">
+          <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">LIVE: X-HTTP</p>
+          <div class="flex flex-wrap items-center gap-3">
+            <button class="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-medium px-3 py-1.5 rounded-md"
+              x-http="remote.html" x-target="#http-demo-output" x-indicator="#http-demo-loading">
+              Load Remote Content (AJAX)
+            </button>
+            <span id="http-demo-loading" hidden class="text-xs text-slate-400">Loading...</span>
+          </div>
+          <pre id="http-demo-output"
+            class="bg-slate-950 border border-slate-800 rounded-md p-3 text-xs text-slate-200 whitespace-pre-wrap min-h-[4.5rem]">Response will appear here.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT IT CAN DO / FEATURES -->
+    <section id="features" class="space-y-8">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">What extra.js can do</h2>
+        <p class="text-sm text-slate-300 mt-1 max-w-2xl">
+          You can stop here and already be productive. When you need more, these are the main building blocks.
+        </p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-3 text-sm">
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
+          <h3 class="font-semibold text-slate-100">Core concepts</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x.store</code> – reactive global state.</li>
+            <li><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> – text &amp; attribute bindings.</li>
+            <li><code>x-js</code> – run inline JS on mount.</li>
+            <li><code>x.computed</code> – derived values.</li>
+            <li><code>x.watch</code> – listen to changes.</li>
+            <li>State persisted via <code>sessionStorage</code>.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
+          <h3 class="font-semibold text-slate-100">HTML directives</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x-if</code> / <code>x-else</code> – conditional blocks.</li>
+            <li><code>x-show</code> – show/hide with <code>hidden</code>.</li>
+            <li><code>x-bind:attr</code> – bind attributes &amp; props.</li>
+            <li><code>x-on:event</code> – click/input/etc handlers.</li>
+            <li><code>x-for</code> – simple loops.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-3">
+          <h3 class="font-semibold text-slate-100">AJAX (x-http)</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x-http</code> – send a request &amp; swap HTML.</li>
+            <li><code>x-method</code> – override GET/POST/etc.</li>
+            <li><code>x-target</code> / <code>x-target-error</code> – where to put success / error.</li>
+            <li><code>x-swap</code> – inner, append, prepend, before, after, outer.</li>
+            <li><code>x-trigger</code> – when to fire (click, submit, load, every:ms…).</li>
+            <li><code>x-indicator</code> – show spinners while loading.</li>
+            <li><code>x-headers</code>, <code>x-form</code>, <code>x-json</code>, <code>x-confirm</code> – control
+              headers, body and confirmation.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-xs sm:text-sm text-slate-300">
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
+          No bundler, no compile step, no virtual DOM.
+        </div>
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
+          Works in single-file demos or larger apps.
+        </div>
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-3">
+          “Just HTML” mental model — easy to onboard teammates.
+        </div>
+      </div>
+    </section>
+
+    <!-- API SUMMARY + CHEATSHEET -->
+    <section id="api" class="space-y-6">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">API & cheatsheet</h2>
+        <p class="text-sm text-slate-300 mt-1 max-w-2xl">
+          Most apps only need a few primitives. Everything lives on <code>x</code> (and the
+          <code>extra</code> alias). You can skim this later when you’re building more complex pages.
+        </p>
+      </div>
+
+      <!-- Short API cards -->
+      <div class="grid gap-6 lg:grid-cols-2 text-sm">
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-2">
+          <h3 class="font-semibold text-slate-100 mb-1">Store &amp; reactivity</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>x.store</code> – reactive global state (proxied, saved in
+              <code>sessionStorage</code>).
+            </li>
+            <li><code>x.watch(path, fn)</code> – run <code>fn(newVal, oldVal)</code> when a path changes.</li>
+            <li><code>x.computed(name, fn)</code> – define derived state that tracks dependencies.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 space-y-2">
+          <h3 class="font-semibold text-slate-100 mb-1">Templating &amp; directives</h3>
+          <ul class="space-y-1 text-slate-300 text-xs sm:text-sm">
+            <li><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code> – render store/computed values in text/attributes.
+            </li>
+            <li><code>x-js="code"</code> – run inline JS when an element appears.</li>
+            <li><code>x-if</code>, <code>x-else</code>, <code>x-show</code>, <code>x-bind</code>,
+              <code>x-on</code>, <code>x-for</code>.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Collapsible full cheatsheet -->
+      <details class="bg-slate-900 rounded-lg border border-slate-800 text-xs sm:text-sm text-slate-300">
+        <summary
+          class="cursor-pointer select-none px-4 py-3 flex items-center justify-between gap-2 hover:bg-slate-900/80">
+          <div>
+            <p class="font-semibold text-slate-100">Open full API cheatsheet</p>
+            <p class="text-[0.7rem] text-slate-400">
+              All directives, HTTP helpers and helpers on one page.
+            </p>
+          </div>
+          <span class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Cheatsheet</span>
+        </summary>
+
+        <div class="border-t border-slate-800 p-4 space-y-4">
+          <!-- Store and reactivity table -->
+          <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">Store and reactivity</h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-left">
+                <thead>
+                  <tr class="text-slate-400">
+                    <th class="p-2">Action</th>
+                    <th class="p-2">Syntax</th>
+                    <th class="p-2">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Set store value</td>
+                    <td class="p-2"><code>x.store.key = value</code></td>
+                    <td class="p-2"><code>x.store.count = 1</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Get store value</td>
+                    <td class="p-2"><code>x.store.key</code></td>
+                    <td class="p-2"><code>const n = x.store.count</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Bind in HTML</td>
+                    <td class="p-2"><code>&#40;&#8203;&#40;path&#41;&#8203;&#41;</code></td>
+                    <td class="p-2"><code>&#40;&#8203;&#40;user.name&#41;&#8203;&#41;</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Bind attributes</td>
+                    <td class="p-2"><code>x-bind:attr</code></td>
+                    <td class="p-2"><code>x-bind:value="name"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Update from input</td>
+                    <td class="p-2"><code>x-on:input</code></td>
+                    <td class="p-2"><code>x-on:input="x.store.name = el.value"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Computed values</td>
+                    <td class="p-2"><code>x.computed</code></td>
+                    <td class="p-2"><code>x.computed("total", () =&gt; a + b)</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Watch changes</td>
+                    <td class="p-2"><code>x.watch</code></td>
+                    <td class="p-2"><code>x.watch("count", (n, o) =&gt; {})</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Session persistence</td>
+                    <td class="p-2">Automatic</td>
+                    <td class="p-2">State survives refresh</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- HTML directives table -->
+          <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">HTML directives</h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-left">
+                <thead>
+                  <tr class="text-slate-400">
+                    <th class="p-2">Action</th>
+                    <th class="p-2">Attribute</th>
+                    <th class="p-2">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Inline JS on load</td>
+                    <td class="p-2"><code>x-js</code></td>
+                    <td class="p-2"><code>x-js="this.textContent = title"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Conditionals</td>
+                    <td class="p-2"><code>x-if</code> / <code>x-else</code></td>
+                    <td class="p-2"><code>x-if="loggedIn"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Show or hide</td>
+                    <td class="p-2"><code>x-show</code></td>
+                    <td class="p-2"><code>x-show="menuOpen"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Bind properties</td>
+                    <td class="p-2"><code>x-bind:attr</code></td>
+                    <td class="p-2"><code>x-bind:class="theme"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Events</td>
+                    <td class="p-2"><code>x-on:event</code></td>
+                    <td class="p-2"><code>x-on:click="x.store.count++"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Loops</td>
+                    <td class="p-2"><code>x-for</code></td>
+                    <td class="p-2"><code>x-for="p in products"</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- AJAX table -->
+          <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">AJAX (x-http)</h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-left">
+                <thead>
+                  <tr class="text-slate-400">
+                    <th class="p-2">Action</th>
+                    <th class="p-2">Attribute</th>
+                    <th class="p-2">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Send request</td>
+                    <td class="p-2"><code>x-http</code></td>
+                    <td class="p-2"><code>x-http="/api/time"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Method override</td>
+                    <td class="p-2"><code>x-method</code></td>
+                    <td class="p-2"><code>x-method="POST"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Success target</td>
+                    <td class="p-2"><code>x-target</code></td>
+                    <td class="p-2"><code>x-target="#result"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Error target</td>
+                    <td class="p-2"><code>x-target-error</code></td>
+                    <td class="p-2"><code>x-target-error="#errors"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Swap strategy</td>
+                    <td class="p-2"><code>x-swap</code></td>
+                    <td class="p-2"><code>x-swap="append"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">When to fire</td>
+                    <td class="p-2"><code>x-trigger</code></td>
+                    <td class="p-2"><code>x-trigger="load:500"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Loading indicator</td>
+                    <td class="p-2"><code>x-indicator</code></td>
+                    <td class="p-2"><code>x-indicator="#spinner"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Custom headers</td>
+                    <td class="p-2"><code>x-headers</code></td>
+                    <td class="p-2"><code>x-headers='{"X-Token":"abc"}'</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Confirm before send</td>
+                    <td class="p-2"><code>x-confirm</code></td>
+                    <td class="p-2"><code>x-confirm="Are you sure?"</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Send JSON</td>
+                    <td class="p-2"><code>x-json</code></td>
+                    <td class="p-2"><code>x-json='{"name":"Ada"}'</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Send form body</td>
+                    <td class="p-2"><code>x-form</code></td>
+                    <td class="p-2"><code>x-form='{"topic":"support"}'</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Runtime helpers -->
+          <div class="w-full rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <h4 class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">Runtime helpers</h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-left">
+                <thead>
+                  <tr class="text-slate-400">
+                    <th class="p-2">Action</th>
+                    <th class="p-2">API</th>
+                    <th class="p-2">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Re-scan DOM</td>
+                    <td class="p-2"><code>x.apply()</code></td>
+                    <td class="p-2"><code>x.apply(el)</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-medium text-slate-100">Config namespace</td>
+                    <td class="p-2"><code>x.config</code></td>
+                    <td class="p-2"><code>x.config.debug = true</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Config note -->
+          <div class="bg-slate-950/60 rounded-lg border border-slate-800 p-3 space-y-2">
+            <h3 class="font-semibold text-slate-100">Config</h3>
+            <p>
+              extra.js exposes a reserved configuration object at <code>x.config</code> so future options can live in
+              one place. Right now there are no official flags — you can safely use it as a namespaced object for your
+              own settings.
+            </p>
+            <p>Example:</p>
+            <pre
+              class="font-mono text-[0.7rem] sm:text-xs overflow-x-auto p-3 bg-slate-950 border border-slate-800 rounded-md"><code class="language-js">// Custom, app-level flags
+x.config.appName = "My extra.js demo";
+x.config.debug = true;</code></pre>
+          </div>
+        </div>
+      </details>
+
+      <div class="bg-slate-900 rounded-lg border border-slate-800 p-4 text-xs sm:text-sm text-slate-300">
+        <p class="mb-1">
+          For more details, examples and the source code, visit the GitHub repo:
+        </p>
+        <a href="https://github.com/chrisbrocklesby/extrajs"
+          class="text-sky-400 hover:text-sky-300 underline underline-offset-2">
+          github.com/chrisbrocklesby/extrajs
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Initialise store values & advanced features -->
+  <script>
+    // Core demo state
+    x.store.count = x.store.count ?? 0;
+    x.store.name = x.store.name ?? "extra.js";
+    x.store.menuOpen = x.store.menuOpen ?? true;
+
+    if (!Array.isArray(x.store.products)) {
+      x.store.products = [
+        { name: "Product 1", price: 29.99 },
+        { name: "Product 2", price: 49.99 },
+        { name: "Product 3", price: 19.99 },
+      ];
+    }
+
+    // Computed demo
+    x.computed("countDouble", () => x.store.count * 2);
+
+    // Watcher demo
+    x.watch("count", (nv, ov) => {
+      console.log("extra.js demo: count changed", ov, "→", nv);
+    });
+  </script>
+
+</body>
+
+</html>
